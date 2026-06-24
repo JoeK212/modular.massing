@@ -1,0 +1,3154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulor Massing · axisbim.io · v42</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0E0E0E;--panel:#161616;--border:#272727;--border2:#303030;
+  --gold:#C8B882;--gdim:#7A7050;--text:#D4D0C8;--dim:#5A5A5A;--dim2:#444;
+  --active-bg:#E8E4D8;--active-text:#0E0E0E;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;overflow:hidden}
+#hdr{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.logo{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:.05em}
+.logo em{color:var(--dim);font-style:normal}
+#cnum{font-family:'Space Mono',monospace;font-size:10px;color:var(--dim)}
+.hdr-r{display:flex;gap:7px;align-items:center}
+#app{display:flex;height:calc(100vh - 30px)}
+#sb{width:248px;min-width:248px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+#sbs{flex:1;overflow-y:auto;padding:0 0 10px}
+#sbs::-webkit-scrollbar{width:3px}
+#sbs::-webkit-scrollbar-thumb{background:var(--border)}
+.sh{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;padding:14px 16px 6px}
+.sh:first-child{padding-top:16px}
+.pal-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px 16px 6px}
+.pal-chip{padding:8px 8px 6px;border:1px solid var(--border2);background:#1A1A1A;cursor:pointer;border-radius:3px;transition:all .12s}
+.pal-chip:hover{border-color:var(--dim)}
+.pal-chip.on{border-color:var(--gold);background:#1C1900}
+.pal-name{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.04em;color:var(--dim);margin-bottom:5px;text-transform:uppercase}
+.pal-chip.on .pal-name{color:var(--gold)}
+.pal-dots{display:flex;gap:3px;flex-wrap:wrap}
+.pal-dot{width:8px;height:8px;border-radius:1px;flex-shrink:0}
+.sl{padding:3px 16px}
+.sl-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.sl-l{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:5px}
+.sl-v{font-family:'Space Mono',monospace;font-size:10px;color:var(--text)}
+input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(--border2);border-radius:2px;outline:none;cursor:pointer;margin-top:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--active-bg);border-radius:50%;border:2px solid var(--bg)}
+.tip-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;border:1px solid var(--dim2);font-size:8px;color:var(--dim2);cursor:default;flex-shrink:0;font-family:'Space Mono',monospace;line-height:1;position:relative}
+.tip-icon:hover .tip-box{display:block}
+.tip-box{display:none;position:absolute;left:18px;top:-4px;z-index:50;background:#111;border:1px solid var(--border2);padding:7px 10px;width:190px;border-radius:3px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.7)}
+.tip-title{font-family:'Space Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:3px;letter-spacing:.04em}
+.tip-desc{font-size:10px;color:var(--dim);line-height:1.5;margin-bottom:4px}
+.tip-meta{font-family:'Space Mono',monospace;font-size:9px;color:var(--gdim)}
+.sax{display:flex;gap:0;padding:0 16px 2px;margin-bottom:2px}
+.sa{flex:1;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.06em;padding:6px 4px;border:1px solid var(--border2);background:transparent;color:var(--dim);cursor:pointer;transition:all .1s;text-align:center;line-height:1.3}
+.sa:first-child{border-radius:3px 0 0 3px}
+.sa:last-child{border-radius:0 3px 3px 0}
+.sa:not(:first-child){border-left:none}
+.sa:hover{color:var(--text)}
+.sa.on-off{background:var(--active-bg);color:var(--active-text);border-color:var(--active-bg);z-index:1;font-weight:700}
+.sa.on-off+.sa{border-left:1px solid var(--border2)}
+.sa.on-x{background:#1A0808;color:#E04848;border-color:#E04848;z-index:1}
+.sa.on-x+.sa{border-left:1px solid var(--border2)}
+.sa.on-y{background:#080E1A;color:#48A0E0;border-color:#48A0E0;z-index:1}
+.sa.on-y+.sa{border-left:1px solid var(--border2)}
+.sa.on-z{background:#081A0C;color:#48C860;border-color:#48C860;z-index:1}
+.sa.on-z+.sa{border-left:1px solid var(--border2)}
+.cut-pos-row{display:none;align-items:center;gap:6px;padding:4px 16px}
+.cut-pos-lbl{font-family:'Space Mono',monospace;font-size:9px;width:22px}
+.cut-pos-v{font-family:'Space Mono',monospace;font-size:10px;color:var(--text);width:58px;text-align:right}
+.seeds-pills{display:flex;flex-wrap:wrap;gap:4px;padding:4px 16px 6px}
+.seed-pill{display:flex;align-items:center;gap:3px;font-family:'Space Mono',monospace;font-size:9px;padding:3px 7px 3px 6px;border:1px solid var(--border2);border-radius:2px;background:#1A1A1A;color:var(--dim)}
+.seed-pill .sp-lbl{color:var(--dim2)}
+.seed-pill .sp-val{color:var(--text)}
+.seed-pill .sp-lock{margin-left:3px;cursor:pointer;font-size:9px;color:var(--dim2);border:none;background:none;padding:0;line-height:1}
+.seed-pill.locked{border-color:var(--gdim);background:#1A1600}
+.seed-pill.locked .sp-val{color:var(--gold)}
+.seed-pill.locked .sp-lock{color:var(--gold)}
+.rnd-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 16px;margin-bottom:4px}
+.rnd-full{margin:0 16px 4px;display:block;width:calc(100% - 32px)}
+.btn-big{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border2);background:#1C1C1C;color:var(--dim);padding:8px;border-radius:3px;cursor:pointer;transition:all .12s;text-align:center;width:100%}
+.btn-big:hover{border-color:var(--dim);color:var(--text)}
+.btn-big.primary{background:var(--active-bg);color:var(--active-text);border-color:var(--active-bg);font-weight:700}
+.btn-big.primary:hover{background:#F0ECE0}
+.btn-big.gold{border-color:var(--gdim);color:var(--gold)}
+.btn-big.gold:hover{background:#1A1600;border-color:var(--gold)}
+#sbf{padding:10px 16px;border-top:1px solid var(--border)}
+.credit{font-family:'Space Mono',monospace;font-size:9px;color:var(--dim);text-align:center}
+.credit a{color:var(--gdim);text-decoration:none}
+.btn{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--border);background:#1C1C1C;color:var(--dim);padding:4px 9px;border-radius:2px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.btn:hover{border-color:var(--dim);color:var(--text)}
+
+/* ── Canvas ── */
+#canvas-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+#canvas{flex:1;position:relative;overflow:hidden;cursor:default;transition:background .3s}
+#canvas.cut-drag{cursor:ew-resize}
+#canvas.cut-drag-z{cursor:ns-resize}
+#canvas.drawing-mode{background:transparent} /* gradient div handles bg */
+
+/* Drawing mode vignette — subtle depth framing on elevation views */
+#draw-vignette{
+  position:absolute;inset:0;z-index:4;pointer-events:none;
+  display:none;
+  background:radial-gradient(ellipse at 50% 42%, transparent 48%, rgba(0,0,0,.14) 80%, rgba(0,0,0,.26) 100%);
+}
+#draw-vignette.visible{display:block;}
+
+/* Sky/ground gradient backdrop — visible in drawing mode only */
+#sky-grad{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  display:none;
+}
+#sky-grad.visible{display:block}
+/* SVG sky fills the container */
+#sky-grad svg{position:absolute;inset:0;width:100%;height:100%;}
+/* Plan view gets a flat drawing-paper tone via the SVG fill */
+
+/* ── Plan shadow overlay — inside #canvas, above Three.js canvas ── */
+#plan-shadow-svg{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  display:none;overflow:hidden;
+}
+#plan-shadow-svg.visible{display:block;}
+/* Three.js canvas in drawing mode sits at z-index 2, shadow SVG at 3 is above it */
+#canvas.drawing-mode canvas{position:relative;z-index:2;}
+
+/* ── Top-right unified control bar: compass + view pills ── */
+#top-controls{
+  position:absolute;top:14px;right:14px;
+  display:flex;align-items:center;gap:0;z-index:20;
+  background:rgba(16,16,16,.82);border:1px solid #333;border-radius:4px;
+  backdrop-filter:blur(4px);overflow:hidden;
+}
+/* Compass embedded in top-right bar */
+#compass{
+  width:36px;height:36px;
+  flex-shrink:0;
+  pointer-events:none;
+  border-right:1px solid #2A2A2A;
+  padding:4px;
+  box-sizing:border-box;
+  transition:opacity .2s;
+}
+/* Divider between compass and pills */
+#view-pills{
+  display:flex;gap:0;
+}
+.vp{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.08em;
+  padding:6px 11px;color:#666;cursor:pointer;
+  border-right:1px solid #2A2A2A;transition:all .12s;white-space:nowrap;
+  background:transparent;line-height:1;
+}
+.vp:last-child{border-right:none}
+.vp:hover{color:#B0A888;background:rgba(255,255,255,.04)}
+.vp.active{color:var(--gold);background:rgba(200,184,130,.10)}
+
+/* Drawing mode view label */
+#view-label{
+  position:absolute;top:14px;left:16px;z-index:20;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;
+  color:var(--gdim);pointer-events:none;display:none;text-transform:uppercase;
+  border-left:2px solid rgba(122,112,80,.45);
+  padding-left:10px;
+  line-height:1.9;
+  text-shadow:0 1px 3px rgba(0,0,0,.7);
+}
+
+/* ── Viewport overlays ── */
+#hint{position:absolute;bottom:8px;left:16px;font-family:'Space Mono',monospace;font-size:9px;color:#666;pointer-events:none;text-align:left;line-height:1.6;opacity:1}
+/* D-pad: shrunk to just fit button + small arrows */
+#dpad{position:absolute;bottom:16px;left:16px;display:grid;grid-template-areas:". up ." "left fit right" ". down .";grid-template-columns:22px 26px 22px;grid-template-rows:22px 26px 22px;gap:2px;user-select:none;transition:opacity .2s}
+.dp{display:flex;align-items:center;justify-content:center;background:rgba(22,22,22,.72);border:1px solid #242424;border-radius:2px;color:#4A4438;font-size:9px;cursor:pointer;transition:all .1s}
+.dp:hover{background:rgba(40,36,20,.95);color:var(--gold);border-color:#7A7050}
+.dp:active{background:rgba(60,52,20,.95)}
+.dp-up{grid-area:up}.dp-left{grid-area:left}.dp-right{grid-area:right}.dp-down{grid-area:down}
+.dp-ctr{grid-area:fit;display:flex;align-items:center;justify-content:center;background:rgba(16,16,16,.82);border:1px solid #2A2A2A;border-radius:2px;cursor:pointer;color:#5A5040;font-size:11px;font-family:'Space Mono',monospace;transition:all .1s}
+.dp-ctr:hover{color:var(--gold);border-color:#7A7050}
+/* Compass fades in drawing mode (pills stay visible) */
+#compass{transition:opacity .2s}
+#compass.drawing{opacity:0;pointer-events:none}
+#dpad{transition:opacity .2s}
+#dpad.drawing{opacity:0;pointer-events:none}
+
+/* ── 3D view ground direction labels ── */
+.dir-lbl{
+  position:absolute;
+  font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.22em;font-weight:700;
+  color:rgba(122,112,80,.80);
+  pointer-events:auto;
+  cursor:pointer;
+  transform:translate(-50%,-50%);
+  transition:color .15s, text-shadow .15s;
+  text-transform:uppercase;
+  user-select:none;
+}
+.dir-lbl:hover{color:rgba(200,184,130,1);text-shadow:0 0 8px rgba(200,184,130,.4);}
+.dir-lbl.north{color:rgba(200,184,130,.95);}
+.dir-lbl.north:hover{color:rgba(240,220,160,1);}
+
+#scalebar{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  display:none;align-items:flex-end;gap:0;pointer-events:none;
+  font-family:'Space Mono',monospace;font-size:9px;color:#555;
+}
+#scalebar.visible{display:flex}
+#scalebar-inner{display:flex;flex-direction:column;align-items:center;gap:3px}
+#scalebar-marks{display:flex;height:6px;border-left:1px solid #666;border-right:1px solid #666;border-bottom:1px solid #666}
+.sb-seg{height:100%;border-right:1px solid #666}
+.sb-seg:nth-child(odd){background:rgba(0,0,0,.15)}
+.sb-seg:nth-child(even){background:rgba(0,0,0,.04)}
+#scalebar-label{font-size:9px;color:#555;letter-spacing:.06em}
+
+#statbar{height:24px;display:flex;align-items:center;gap:18px;padding:0 14px;background:var(--panel);border-top:1px solid var(--border);flex-shrink:0;font-family:'Space Mono',monospace;font-size:9px;color:var(--dim)}
+#statbar span{color:var(--gold)}
+
+/* ── Picture-in-picture 3D thumbnail ── */
+#pip{
+  position:absolute;
+  bottom:40px;right:14px;   /* bottom-right — clear of model in plan + elevations */
+  width:180px;height:130px;
+  display:none;
+  z-index:25;
+  border:1px solid rgba(200,184,130,.28);
+  border-radius:3px;
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.18);
+  cursor:pointer;
+  transition:border-color .15s, box-shadow .15s;
+  background:transparent;
+}
+#pip:hover{border-color:rgba(200,184,130,.65);box-shadow:0 4px 20px rgba(0,0,0,.28);}
+#pip.visible{display:block;}
+#pip canvas{display:block;width:100%!important;height:100%!important;}
+#pip-label{
+  position:absolute;bottom:5px;left:7px;
+  font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.1em;
+  color:rgba(80,72,50,.75);pointer-events:none;text-transform:uppercase;
+}
+#pip-expand{
+  position:absolute;top:5px;right:6px;
+  font-family:'Space Mono',monospace;font-size:8px;
+  color:rgba(80,72,50,.45);pointer-events:none;
+}
+#cut-handle{position:absolute;top:0;bottom:0;width:4px;display:none;pointer-events:none;z-index:10}
+#cut-handle.visible{display:block}
+#cut-handle-line{position:absolute;top:0;bottom:0;left:1px;width:2px;opacity:0.55}
+#cut-handle-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:32px;background:rgba(22,22,22,0.85);border:1px solid;border-radius:3px;cursor:ew-resize;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Space Mono',monospace;color:inherit}
+/* Z-axis (horizontal) cut handle */
+#cut-handle-z{position:absolute;left:0;right:0;height:4px;display:none;pointer-events:none;z-index:10}
+#cut-handle-z.visible{display:block}
+#cut-handle-z-line{position:absolute;left:0;right:0;top:1px;height:2px;opacity:0.55}
+#cut-handle-z-grip{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:32px;height:16px;background:rgba(22,22,22,0.85);border:1px solid;border-radius:3px;cursor:ns-resize;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'Space Mono',monospace;color:inherit}
+#gate{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:99}
+#gate.open{display:flex}
+.gb{background:var(--panel);border:1px solid var(--border);padding:28px;max-width:380px;width:90%}
+.gb h2{font-family:'Space Mono',monospace;font-size:12px;color:var(--gold);margin-bottom:10px}
+.gb p{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:18px}
+.gu{font-family:'Space Mono',monospace;font-size:11px;color:var(--gdim);display:block;margin-bottom:20px}
+.br{display:flex;gap:7px}
+
+/* ── Swatch Savers ─────────────────────────────────────────── */
+#swatches-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+  padding:4px 16px 10px;
+}
+.sw-card{
+  position:relative;border:1px solid var(--border2);border-radius:3px;
+  overflow:hidden;cursor:pointer;background:#111;
+  transition:border-color .12s;
+  aspect-ratio:8/5;
+}
+.sw-card:hover{border-color:var(--gold);}
+.sw-card img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  pointer-events:none;
+}
+.sw-del{
+  position:absolute;top:2px;right:2px;
+  width:14px;height:14px;border-radius:2px;
+  background:rgba(14,14,14,.82);border:1px solid var(--border2);
+  color:var(--dim2);font-size:9px;line-height:14px;text-align:center;
+  cursor:pointer;opacity:0;transition:opacity .1s;font-family:'Space Mono',monospace;
+}
+.sw-card:hover .sw-del{opacity:1;}
+.sw-del:hover{color:#E04848;border-color:#E04848;}
+.sw-empty{
+  padding:8px 16px 10px;
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:var(--dim2);letter-spacing:.04em;line-height:1.6;
+}
+.sw-save-row{padding:2px 16px 6px;}
+/* Editable slider values */
+.sl-v.editable{cursor:text;border-bottom:1px dashed rgba(180,160,100,0.3);transition:border-color .15s;}
+.sl-v.editable:hover{border-bottom-color:rgba(180,160,100,0.7);color:var(--gold);}
+.sl-v-input{
+  width:54px;font-family:'Space Mono',monospace;font-size:9px;
+  background:rgba(30,28,22,0.95);border:1px solid var(--gold);
+  color:var(--gold);padding:1px 3px;border-radius:2px;
+  text-align:right;outline:none;
+}
+/* ── Debug overlay (backtick toggle) ── */
+#debug-overlay{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.82);border:1px solid #333;border-radius:3px;
+  padding:7px 12px;z-index:40;pointer-events:none;display:none;
+  font-family:'Space Mono',monospace;font-size:9px;color:#7A9A7A;
+  line-height:1.8;letter-spacing:.04em;white-space:pre;
+}
+#debug-overlay.visible{display:block;}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="logo">Modulor <em>·</em> Massing</div>
+    <div id="cnum">MASS·000</div>
+  </div>
+  <div class="hdr-r">
+    <button class="btn" id="btn-fullscreen">⤢ Full</button>
+    <button class="btn" id="btn-json">Export JSON</button>
+  </div>
+</div>
+<div id="app">
+  <div id="sb">
+    <div id="sbs">
+      <div class="sh">Colour Palette</div>
+      <div class="pal-grid" id="pal-grid"></div>
+
+      <div class="sh">Plan Grid</div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Cols — X →</div><div class="tip-desc">Number of columns in the plan grid. Each column width is drawn from the Modulor Blue Series.</div><div class="tip-meta">Range: 2–12</div></span></span>Columns X</span><span class="sl-v editable" id="v-px" data-sl="s-px" data-key="planCols" data-type="int" data-min="2" data-max="12">4</span></div>
+        <input type="range" id="s-px" min="2" max="12" value="4">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Rows — Y →</div><div class="tip-desc">Number of rows (depth) in the plan grid. Each row depth is drawn from the Blue Series.</div><div class="tip-meta">Range: 1–10</div></span></span>Rows Y</span><span class="sl-v editable" id="v-pz" data-sl="s-pz" data-key="planRows" data-type="int" data-min="1" data-max="10">3</span></div>
+        <input type="range" id="s-pz" min="1" max="10" value="3">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Merge Probability</div><div class="tip-desc">Probability that adjacent plan cells merge — Mondrian composition logic.</div><div class="tip-meta">0% = no merges · 95% = very few cells</div></span></span>Merge</span><span class="sl-v editable" id="v-pm" data-sl="s-pm" data-key="planMerge" data-type="pct" data-min="0" data-max="95">40%</span></div>
+        <input type="range" id="s-pm" min="0" max="95" value="40">
+      </div>
+
+      <div class="sh">Heights Z ↑</div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Min Height Index</div><div class="tip-desc">Minimum cell height as a Blue Series index.</div><div class="tip-meta" id="tip-hn-meta">BLUE[1] = 1'-10"</div></span></span>Min height</span><span class="sl-v editable" id="v-hn" data-sl="s-hn" data-key="htMin" data-type="blue" data-min="0" data-max="8">—</span></div>
+        <input type="range" id="s-hn" min="0" max="8" value="1" step="1">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Max Height Index</div><div class="tip-desc">Maximum cell height as a Blue Series index.</div><div class="tip-meta" id="tip-hx-meta">BLUE[4] = 25'-5"</div></span></span>Max height</span><span class="sl-v editable" id="v-hx" data-sl="s-hx" data-key="htMax" data-type="blue" data-min="1" data-max="9">—</span></div>
+        <input type="range" id="s-hx" min="1" max="9" value="4" step="1">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Void Probability</div><div class="tip-desc">Probability a plan cell is absent — creates courtyards and gaps.</div><div class="tip-meta">0% = solid · 60% = mostly gaps</div></span></span>Voids</span><span class="sl-v editable" id="v-vd" data-sl="s-vd" data-key="voidP" data-type="pct" data-min="0" data-max="60">15%</span></div>
+        <input type="range" id="s-vd" min="0" max="60" value="15">
+      </div>
+
+      <div class="sh">Proportions</div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Bay Width — X</div><div class="tip-desc">Base module for column widths (Blue Series index).</div><div class="tip-meta" id="tip-bw-meta">BLUE[3] = 15'-9"</div></span></span>Bay width</span><span class="sl-v editable" id="v-bw" data-sl="s-bw" data-key="bwIdx" data-type="blue" data-min="0" data-max="6">—</span></div>
+        <input type="range" id="s-bw" min="0" max="6" value="3" step="1">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Depth Unit — Y</div><div class="tip-desc">Base module for row depths (Blue Series index).</div><div class="tip-meta" id="tip-du-meta">BLUE[3] = 15'-9"</div></span></span>Depth unit</span><span class="sl-v editable" id="v-du" data-sl="s-du" data-key="duIdx" data-type="blue" data-min="0" data-max="6">—</span></div>
+        <input type="range" id="s-du" min="0" max="6" value="3" step="1">
+      </div>
+
+      <div class="sh">Facade</div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Facade Density</div><div class="tip-desc">Solid/void/proud panel ratio. Symbiotic rule modifies per face.</div><div class="tip-meta">0% open → 100% solid</div></span></span>Density</span><span class="sl-v editable" id="v-fd" data-sl="s-fd" data-key="facDensity" data-type="pct" data-min="0" data-max="100">60%</span></div>
+        <input type="range" id="s-fd" min="0" max="100" value="60">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Relief Depth</div><div class="tip-desc">How far proud panels step outward from the solid field.</div><div class="tip-meta" id="tip-fr-meta">2"</div></span></span>Relief</span><span class="sl-v editable" id="v-fr" data-sl="s-fr" data-key="facReliefIdx" data-type="relief" data-min="0" data-max="5">—</span></div>
+        <input type="range" id="s-fr" min="0" max="5" value="2" step="1">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Facade Grid Scale</div><div class="tip-desc">Panel subdivision — low = coarse grid, high = fine bays.</div><div class="tip-meta" id="tip-fg-meta">fine</div></span></span>Grid scale</span><span class="sl-v editable" id="v-fg" data-sl="s-fg" data-key="facGridIdx" data-type="gridscale" data-min="0" data-max="3">—</span></div>
+        <input type="range" id="s-fg" min="0" max="3" value="0" step="1">
+      </div>
+      <div class="sl">
+        <div class="sl-row"><span class="sl-l"><span class="tip-icon">?<span class="tip-box"><div class="tip-title">Proud Rhythm</div><div class="tip-desc">Per-floor variation within proud columns (Solid mode). In Spandrel/Vision mode, breaks a proud run back to spandrel.</div><div class="tip-meta">0% full vertical runs · 100% random per floor</div></span></span>Rhythm</span><span class="sl-v editable" id="v-fy" data-sl="s-fy" data-key="facRhythm" data-type="pct" data-min="0" data-max="100">0%</span></div>
+        <input type="range" id="s-fy" min="0" max="100" value="0">
+      </div>
+      <div class="sax">
+        <div class="sa on-off" id="sa-sv-off" title="Solid/Proud panels only">Solid</div>
+        <div class="sa" id="sa-sv-on" title="Spandrel + Vision (glazing) system">Spandrel / Vision</div>
+      </div>
+
+      <div class="sh">Display</div>
+      <div class="sax">
+        <div class="sa on-off" id="sa-shd-on" title="Show shadows">Shadows On</div>
+        <div class="sa" id="sa-shd-off" title="Hide shadows">Shadows Off</div>
+      </div>
+      <div class="sax">
+        <div class="sa on-off" id="sa-gnd-on" title="Show ground plane">Ground On</div>
+        <div class="sa" id="sa-gnd-off" title="Hide ground plane — grid remains">Ground Off</div>
+      </div>
+      <div class="sax">
+        <div class="sa on-off" id="sa-grd-on" title="Show Blue Series grid">Grid On</div>
+        <div class="sa" id="sa-grd-off" title="Hide grid">Grid Off</div>
+      </div>
+
+      <div class="sh">Section Cut</div>
+      <div class="sax">
+        <div class="sa on-off" id="sa-off">Off</div>
+        <div class="sa" id="sa-x" title="X — east-west vertical section">X</div>
+        <div class="sa" id="sa-y" title="Y — north-south vertical section">Y<br><span style="font-size:7px;letter-spacing:.02em;opacity:.6">N–S</span></div>
+        <div class="sa" id="sa-z" title="Z — horizontal plan cut">Z<br><span style="font-size:7px;letter-spacing:.02em;opacity:.6">Plan</span></div>
+      </div>
+      <div class="cut-pos-row" id="cut-pos-row">
+        <span class="cut-pos-lbl" id="cut-axis-lbl" style="width:22px"></span>
+        <input type="range" id="s-cut" min="0" max="100" value="50" style="flex:1">
+        <span class="cut-pos-v" id="v-cut">0'-0"</span>
+      </div>
+
+      <div class="sh">Randomise</div>
+      <div class="rnd-row" style="margin-bottom:5px">
+        <button class="btn-big primary" id="btn-rnd-full" style="grid-column:span 1">↻ Random</button>
+        <button class="btn-big" id="btn-reset" style="border-color:var(--gdim);color:var(--gold)">⊙ Reset</button>
+      </div>
+      <div class="rnd-row">
+        <button class="btn-big" id="btn-rnd-plan">↻ Plan</button>
+        <button class="btn-big" id="btn-rnd-ht">↻ Height</button>
+        <button class="btn-big" id="btn-rnd-col">↻ Colour</button>
+        <button class="btn-big" id="btn-rnd-fac">↻ Facade</button>
+        <button class="btn-big" id="btn-rnd-all3">↻ Seeds</button>
+        <button class="btn-big gold" id="btn-rnd-params">↻ Params</button>
+      </div>
+
+      <div class="sh">Seeds</div>
+      <div class="seeds-pills" id="seeds-pills"></div>
+
+      <div class="sh">Swatch Savers</div>
+      <div class="sw-save-row">
+        <button class="btn-big" id="btn-sw-save" style="border-color:var(--gdim);color:var(--gold)">⊕ Save Swatch</button>
+      </div>
+      <div id="sw-empty" class="sw-empty">No swatches saved yet.<br>Click Save Swatch to capture<br>the current state.</div>
+      <div id="swatches-grid"></div>
+    </div>
+    <div id="sbf"><div class="credit">Joe.K · <a href="https://axisbim.io" target="_blank">axisbim.io</a></div></div>
+  </div>
+
+  <div id="canvas-wrap">
+    <div id="sky-grad"></div>
+  <div id="draw-vignette"></div>
+    <div id="canvas">
+      <!-- Plan shadow overlay — inside canvas so position:absolute is relative to viewport -->
+      <svg id="plan-shadow-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <!-- Unified top-right: compass + view pills -->
+      <div id="top-controls">
+        <div id="compass" class="hidden-in-drawing">
+          <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="28" cy="28" r="24" fill="rgba(16,16,16,0.0)" stroke="none"/>
+            <g id="compass-needle">
+              <polygon points="28,7 25.5,28 30.5,28" fill="#C8B882"/>
+              <polygon points="28,49 25.5,28 30.5,28" fill="#3A3530"/>
+              <circle cx="28" cy="28" r="2" fill="#C8B882"/>
+            </g>
+            <text x="28" y="4.5" text-anchor="middle" font-family="Space Mono,monospace" font-size="6" fill="#C8B882" font-weight="700">N</text>
+            <text x="28" y="55" text-anchor="middle" font-family="Space Mono,monospace" font-size="6" fill="#5A5A5A">S</text>
+            <text x="2.5" y="30" text-anchor="middle" font-family="Space Mono,monospace" font-size="6" fill="#5A5A5A">W</text>
+            <text x="53.5" y="30" text-anchor="middle" font-family="Space Mono,monospace" font-size="6" fill="#5A5A5A">E</text>
+          </svg>
+        </div>
+        <div id="view-pills">
+          <div class="vp active" data-view="3d">3D</div>
+          <div class="vp" data-view="plan">Plan</div>
+          <div class="vp" data-view="north">N</div>
+          <div class="vp" data-view="south">S</div>
+          <div class="vp" data-view="east">E</div>
+          <div class="vp" data-view="west">W</div>
+        </div>
+      </div>
+      <!-- Debug overlay (backtick toggle) -->
+      <div id="debug-overlay"></div>
+      <!-- Drawing mode label -->
+      <div id="view-label"></div>
+      <!-- 3D ground direction labels — projected from world positions -->
+      <div id="dir-labels" style="position:absolute;inset:0;pointer-events:none;z-index:18;"></div>
+      <!-- Cut handle -->
+      <div id="cut-handle"><div id="cut-handle-line"></div><div id="cut-handle-grip">⟺</div></div>
+      <!-- Z-axis (horizontal) cut handle -->
+      <div id="cut-handle-z"><div id="cut-handle-z-line"></div><div id="cut-handle-z-grip">⟸⟹</div></div>
+      <!-- D-pad: compact fit button + subtle arrows -->
+      <div id="dpad" class="hidden-in-drawing">
+        <div class="dp dp-up" id="dp-u">▲</div>
+        <div class="dp dp-left" id="dp-l">◀</div>
+        <div class="dp-ctr" id="dp-fit">⊡</div>
+        <div class="dp dp-right" id="dp-r">▶</div>
+        <div class="dp dp-down" id="dp-d">▼</div>
+      </div>
+      <!-- Scale bar (drawing mode) -->
+      <div id="scalebar"><div id="scalebar-inner"><div id="scalebar-marks"></div><div id="scalebar-label"></div></div></div>
+      <div id="hint">X east · Y north · Z up  |  Drag · Scroll · Right-drag pan<br><span id="cut-hint" style="color:var(--gold)"></span></div>
+      <!-- Picture-in-picture 3D thumbnail -->
+      <div id="pip">
+        <!-- canvas injected by JS -->
+        <div id="pip-label">3D — click to return</div>
+        <div id="pip-expand">⊡</div>
+      </div>
+    </div>
+    <div id="statbar">
+      <div>X <span id="st-w">—</span></div>
+      <div>Y <span id="st-d">—</span></div>
+      <div>Z <span id="st-h">—</span></div>
+      <div>Cells <span id="st-c">—</span></div>
+      <div>Palette <span id="st-p">—</span></div>
+      <div id="st-cut-info" style="display:none">Cut <span id="st-cut-val" style="color:var(--gold)">—</span></div>
+      <div id="st-view-info" style="margin-left:auto;color:var(--gdim)"></div>
+    </div>
+  </div>
+</div>
+<div id="gate">
+  <div class="gb">
+    <h2>axisbim.io · Access Required</h2>
+    <p>Export features are available to registered Axis BIM users.</p>
+    <span class="gu">→ axisbim.io</span>
+    <div class="br">
+      <button class="btn" style="border-color:var(--gdim);color:var(--gold)" onclick="window.open('https://axisbim.io','_blank')">Visit axisbim.io</button>
+      <button class="btn" onclick="document.getElementById('gate').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Blue Series ───────────────────────────────────────────────
+const PHI=(1+Math.sqrt(5))/2;
+const BLUE=((r,n)=>{const s=[r];for(let i=1;i<n;i++)s.push(s[i-1]*PHI);return s;})(1.13,12);
+
+// ── Imperial ──────────────────────────────────────────────────
+const M2FT=3.28084;
+const FRACS=[[0,''],[1/16,'1/16'],[1/8,'1/8'],[3/16,'3/16'],[1/4,'1/4'],[5/16,'5/16'],[3/8,'3/8'],[7/16,'7/16'],[1/2,'1/2'],[9/16,'9/16'],[5/8,'5/8'],[11/16,'11/16'],[3/4,'3/4'],[13/16,'13/16'],[7/8,'7/8'],[15/16,'15/16']];
+function fmtImperial(m){
+  if(m<0)return '-'+fmtImperial(-m);
+  const ti=m*M2FT*12;
+  let ft=Math.floor(ti/12);
+  const ri=ti-ft*12;
+  let wi=Math.floor(ri);
+  const fr=ri-wi;
+  let bf='',bd=Infinity;
+  for(const[v,s]of FRACS){const d=Math.abs(fr-v);if(d<bd){bd=d;bf=s;}}
+  if(bf===''&&Math.abs(fr-1)<Math.abs(fr)){wi+=1;bf='';}
+  if(wi>=12){ft+=Math.floor(wi/12);wi=wi%12;}
+  let ins=wi>0?`${wi}`:'';
+  if(bf)ins+=(ins?' ':'')+bf;
+  if(!ins)ins='0';
+  return `${ft}'-${ins}"`;
+}
+const BLUE_IMP=BLUE.map(fmtImperial);
+
+// ── Palettes ─────────────────────────────────────────────────
+const PALETTES={
+  mondrian:{name:'Mondrian',fills:[0xE8E4D0,0xE8E4D0,0xC8220C,0x1B3A8C,0xF0C30A],bg:0x1A1A1A,ground:0x202020,edge:0x1C1814,facadeVoid:0x0E0E0E,facadeProud:0xF4EDD8,poche:0x1A0A08,pocheEdge:0xC84830},
+  unite:{name:'Unité',fills:[0xD0C8B4,0xD0C8B4,0xC03020,0x2A6A40,0xE8C020,0x1A4080],bg:0x1C1A16,ground:0x242220,edge:0x3A3530,facadeVoid:0x101010,facadeProud:0xDDD5BA,poche:0x100E08,pocheEdge:0xA06030},
+  habitat:{name:'Habitat',fills:[0xC4BC9C,0xB0A888,0xD0C8B0,0x8A8270,0x4A4540],bg:0x181818,ground:0x202020,edge:0x3A3530,facadeVoid:0x0C0C0C,facadeProud:0xD8CEB0,poche:0x0E0C08,pocheEdge:0x806848},
+  neutral:{name:'Neutral',fills:[0xE0DDD6,0xC0BDB6,0x909090,0x606060,0x303030],bg:0x141414,ground:0x1C1C1C,edge:0x1C1814,facadeVoid:0x0A0A0A,facadeProud:0xECE9E4,poche:0x0C0C0C,pocheEdge:0x484848},
+};
+
+// ── Drawing mode palette ──────────────────────────────────────
+// Applied in named views (plan, south, east)
+const DRAW={
+  bg:0xF2EFE9,         // warm off-white background
+  fill:0xD8D5CE,       // mid warm grey — clearly distinct from bg
+  fillAlt:0xCECBC4,    // slightly darker alternate
+  edge:0x181410,       // near-black edges (strong)
+  edgeLight:0x888480,  // lighter edges for interior lines
+  poche:0x161210,      // very dark poche
+  pocheEdge:0x080604,  // black section line
+  ground:0xBBB6AC,     // dark warm ground — matches gradient base
+  gridColor:0xB4B0A8,  // quiet grid
+};
+
+// ── RNG ───────────────────────────────────────────────────────
+function mkRng(seed){let s=seed>>>0;return()=>{s^=s<<13;s^=s>>17;s^=s<<5;return(s>>>0)/0xFFFFFFFF;};}
+
+// ── Default state — clean, legible first impression ───────────
+// Small grid, no voids, low facade density, no section cut.
+// This is what a new user sees on load and what "Reset" returns to.
+const DEFAULT_S={
+  // ── Ideal sample composition ──────────────────────────────────
+  // 3×2 Modulor grid at BLUE[3] bay × BLUE[3] depth (~15'-8" module)
+  // Heights span BLUE[2]–BLUE[5] (9'-8" to 41'-1") for strong silhouette
+  // 30% merge creates Mondrian cellular variation
+  // Facade at 65% density, med-fine grid, 6" relief, 20% rhythm
+  // Mondrian palette, shadows on — designed to show all systems working
+  planCols:3,  planRows:2,  planMerge:30,
+  htMin:2,     htMax:5,     voidP:10,
+  bwIdx:3,     duIdx:3,
+  facDensity:65, facReliefIdx:3, facGridIdx:1, facRhythm:20, facSVMode:false,
+  pal:'mondrian',
+  seeds:{p:12847, h:63291, c:58204, f:39175},
+  locks:{p:false, h:false, c:false, f:false},
+  cutAxis:null, cutPos:0.5,
+  showShadows:true,
+  showGround:true,
+  showGrid:true,
+};
+
+// ── State ─────────────────────────────────────────────────────
+const S=Object.assign({},{...DEFAULT_S,seeds:{...DEFAULT_S.seeds},locks:{...DEFAULT_S.locks}});
+const CUT={active:false,axis:null,worldPos:0,plane:null,ghostMesh:null,pocheMeshes:[],isDragging:false};
+const AXIS_COLOR={x:'#E04848',y:'#48A0E0',z:'#48C860'};
+const AXIS_HEX={x:0xE04848,y:0x48A0E0,z:0x48C860};
+let lastVolumes=[],lastBounds={minX:0,maxX:0,minY:0,maxY:0,minZ:0,maxZ:0};
+let compNum='000';
+function p3(n){return String(n).padStart(3,'0');}
+
+// ── View state ────────────────────────────────────────────────
+// activeView: '3d' | 'plan' | 'south' | 'east'
+let activeView='3d';
+// Saved 3D orbit state for restoring when leaving named views
+let saved3D={rotY:Math.PI/5,rotX:Math.PI/5,frustum:16,panX:0,panY:0};
+
+// Named view angles (all use the unified positionCamera system)
+const VIEW_ANGLES={
+  '3d':  { rotY:Math.PI/4,      rotX:Math.PI/9,       label:'',                           hint:'Drag · Scroll · Right-drag pan' },
+  plan:  { rotY:0,              rotX:Math.PI/2-0.001, label:'PLAN — TOP VIEW',             hint:'Plan view — scroll to zoom' },
+  north: { rotY:Math.PI,        rotX:0.001,            label:'NORTH ELEVATION',             hint:'North elevation — scroll to zoom' },
+  south: { rotY:0,              rotX:0.001,            label:'SOUTH ELEVATION',             hint:'South elevation — scroll to zoom' },
+  east:  { rotY:Math.PI/2,      rotX:0.001,            label:'EAST ELEVATION',              hint:'East elevation — scroll to zoom' },
+  west:  { rotY:-Math.PI/2,     rotX:0.001,            label:'WEST ELEVATION',              hint:'West elevation — scroll to zoom' },
+};
+
+// Fit frustum for a given view + bounds
+function fitFrustumForView(view, b){
+  const c=document.getElementById('canvas');
+  const W=c.clientWidth||window.innerWidth-248;
+  const H=c.clientHeight||window.innerHeight-42-24;
+  const asp=W/H||1.6;
+  const w=b.maxX-b.minX, d=b.maxZ-b.minZ, h=b.maxY;
+  if(view==='3d'){
+    // Fit the model with generous padding — coefficients tuned so even a 3×2 tall
+    // model lands fully framed with breathing room on all sides.
+    const footprint=Math.max(w, d);
+    const verticalExtent=h;
+    const asp2=Math.max(asp,0.5);
+    return Math.max(footprint * 0.72 / asp2, verticalExtent * 0.55) + 3.5;
+  }
+  if(view==='plan'){
+    // frustum = half the visible world-height. Need 2*f >= max(d, w/asp)*padding.
+    return Math.max(d, w/asp)*0.65 + 1.5;
+  }
+  // Elevation: frustum is half the visible height in world units.
+  // Ground at 22% from bottom, roof+sky at top (sky=22% of h) — generous so model never clips.
+  const elWidth = (view==='east'||view==='west') ? d : w;
+  const skyGap = h*0.22;
+  const gndGap = h*0.28;  // extra ground breathing room — model base never clips
+  const totalH = h + skyGap + gndGap;
+  const frustum = Math.max(totalH*0.5, elWidth*0.5/asp) + 2.0;
+  return frustum;
+}
+
+// Set panY for elevation views so ground sits at ~20% from frame bottom.
+// With symmetric frustum f and panY: bottom = panY-f, top = panY+f
+// Ground at world Y=0: screenFrac = (panY-0)/2f from bottom → we want 0.20
+// → panY = f - 2*f*0.20 ... wait: bottom of frame = panY-f (world), ground=0
+// distance from bottom to ground = 0-(panY-f) = f-panY
+// as fraction of total height 2f: (f-panY)/(2f) = 0.20 → panY = f*(1-0.40) = f*0.60
+// ground at ~22% from bottom: (f - panY) / (2f) = 0.22 → panY = f * 0.56
+function elevPanY(frustum){ return frustum * 0.56; }
+
+// Legacy VIEW_DEFS shim — setCamera now just snaps orb angles
+const VIEW_DEFS={
+  plan:{  label:'PLAN — TOP VIEW',        hint:'Plan view — scroll to zoom',        _zoomed:false, setCamera(b){ snapView('plan',b); } },
+  south:{ label:'SOUTH ELEVATION',        hint:'South elevation — scroll to zoom',  _zoomed:false, setCamera(b){ snapView('south',b); } },
+  east:{  label:'EAST ELEVATION',         hint:'East elevation — scroll to zoom',   _zoomed:false, setCamera(b){ snapView('east',b); } },
+  north:{ label:'NORTH ELEVATION',        hint:'North elevation — scroll to zoom',  _zoomed:false, setCamera(b){ snapView('north',b); } },
+  west:{  label:'WEST ELEVATION',         hint:'West elevation — scroll to zoom',   _zoomed:false, setCamera(b){ snapView('west',b); } },
+};
+
+function snapView(view, b){
+  const a=VIEW_ANGLES[view];
+  orb.rotY=a.rotY;
+  orb.rotX=a.rotX;
+  orb.panX=0;
+  if(view==='plan'){
+    orb.panY=b.maxY*0.5;
+  } else {
+    // Elevation views: camera looks at (panX, lookY, 0) where lookY = targetY + panY.
+    // elevPanY() math assumes lookY == panY (i.e. targetY=0) so ground at Y=0 lands at
+    // 22% from bottom.  Reset targetY here so the assumption holds.
+    orb.targetY=0;
+    // Compute frustum first so we can derive panY from it
+    const f=fitFrustumForView(view,b);
+    orb.panY=elevPanY(f);
+  }
+  if(!VIEW_DEFS[view]._zoomed){
+    orb.frustum=fitFrustumForView(view,b);
+  }
+  const c=document.getElementById('canvas');
+  positionCamera();
+}
+
+// ── Three.js ─────────────────────────────────────────────────
+let renderer,scene,camera;
+let orb={dragging:false,right:false,lastX:0,lastY:0,rotY:Math.PI/4,rotX:Math.PI/7,frustum:16,panX:0,panY:0,panZ:0,targetY:0};
+// Smooth snap tween — set .active=true and fill target fields to animate the orbit
+const orbSnap={active:false,fromRotY:0,toRotY:0,fromRotX:0,toRotX:0,t:0,dur:24};
+
+function initThree(){
+  const container=document.getElementById('canvas');
+  const W=Math.max(container.clientWidth,300),H=Math.max(container.clientHeight,300);
+  renderer=new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.localClippingEnabled=true;
+  container.appendChild(renderer.domElement);
+  scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x111111,0.0);
+  const asp=W/H;
+  camera=new THREE.OrthographicCamera(-orb.frustum*asp,orb.frustum*asp,orb.frustum,-orb.frustum,1.0,8000);
+  positionCamera();
+  scene.add(new THREE.AmbientLight(0xffffff,0.35));
+  const sun=new THREE.DirectionalLight(0xFFF8E8,1.2);
+  sun.position.set(12,14,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+  const sc=sun.shadow.camera;
+  sc.near=1;sc.far=200;sc.left=-60;sc.right=60;sc.top=60;sc.bottom=-60;
+  scene.add(sun);
+  const fill=new THREE.DirectionalLight(0xC8D8FF,0.25);
+  fill.position.set(-8,6,-10);scene.add(fill);
+  setupOrbit(container);
+  window.addEventListener('resize',onResize);
+}
+
+// ── Picture-in-picture 3D thumbnail ─────────────────────────
+let pipRenderer=null, pipCamera=null;
+const PIP_W=180, PIP_H=130;
+
+function initPip(){
+  const pipDiv=document.getElementById('pip');
+  pipRenderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  pipRenderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  pipRenderer.setSize(PIP_W,PIP_H);
+  pipRenderer.shadowMap.enabled=true;
+  pipRenderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  pipRenderer.localClippingEnabled=true;
+  // Insert canvas before the label divs
+  pipDiv.insertBefore(pipRenderer.domElement, pipDiv.firstChild);
+
+  // PiP uses its own ortho camera — same scene, saved 3D orbit angle
+  const asp=PIP_W/PIP_H;
+  const f=saved3D.frustum||16;
+  pipCamera=new THREE.OrthographicCamera(-f*asp,f*asp,f,-f,0.1,1000);
+  updatePipCamera();
+
+  // Click to return to 3D — if coming from elevation view, keep cardinal angle and hide ground/grid
+  pipDiv.addEventListener('click',()=>{
+    const fromElevation = activeView==='north'||activeView==='south'||activeView==='east'||activeView==='west';
+    const snapRotY = orb.rotY; // preserve current cardinal rotY
+    setView('3d');
+    if(fromElevation){
+      // Restore cardinal snap angle, center model, hide ground/grid
+      orb.rotX = 0.001;
+      orb.rotY = snapRotY;
+      orb.panX = 0; orb.panY = 0;
+      orb.targetY = lastBounds ? lastBounds.maxY * 0.5 : 0;
+      orb.frustum = lastBounds ? fitFrustumForView('3d', lastBounds) : orb.frustum;
+      positionCamera();
+      updateCameraFrustum();
+    }
+  });
+}
+
+function updatePipCamera(){
+  if(!pipCamera) return;
+  const asp=PIP_W/PIP_H;
+
+  let rotY, rotX, frustum, panX, panY;
+
+  // Derive a tight frustum from lastBounds so PiP never zooms out too far
+  function pipFrustumFromBounds(){
+    if(!lastBounds) return saved3D.frustum||16;
+    const b=lastBounds;
+    const w=b.maxX-b.minX, d=b.maxZ-b.minZ, h=b.maxY;
+    const diag=Math.sqrt(w*w + d*d + h*h);
+    return diag * 0.38; // tight isometric framing
+  }
+
+  if(activeView==='3d'){
+    rotY=saved3D.rotY; rotX=saved3D.rotX;
+    frustum=saved3D.frustum; panX=saved3D.panX; panY=saved3D.panY;
+  } else {
+    const tilt=Math.PI/10;
+    const angles={
+      plan:  { rotY:Math.PI/4,         rotX:Math.PI/2.2 },
+      north: { rotY:Math.PI+Math.PI/6,  rotX:tilt },
+      south: { rotY:Math.PI/6,          rotX:tilt },
+      east:  { rotY:Math.PI/2+Math.PI/6,rotX:tilt },
+      west:  { rotY:-Math.PI/2-Math.PI/6,rotX:tilt },
+    };
+    const a=angles[activeView]||angles.south;
+    rotY=a.rotY; rotX=a.rotX;
+    frustum=pipFrustumFromBounds();
+    panX=0;
+    if(lastBounds) panY=lastBounds.maxY*0.35;
+    else panY=frustum*0.35;
+  }
+
+  const d=frustum*2.8;
+
+  // Plan view: true top-down with N (−Z) at screen-top, matching the main plan view
+  if(activeView==='plan'){
+    const px=orb.panX||0;
+    pipCamera.position.set(px, d, orb.panZ||0);
+    pipCamera.up.set(0,0,-1); // −Z at screen-top = North at top ✓
+    pipCamera.lookAt(px, 0, orb.panZ||0);
+    pipCamera.near=0.1;
+    pipCamera.far=Math.max(4000, d*30);
+    pipCamera.left=-frustum*asp; pipCamera.right=frustum*asp;
+    pipCamera.top=frustum; pipCamera.bottom=-frustum;
+    pipCamera.updateProjectionMatrix();
+    pipCamera.updateMatrixWorld();
+    return;
+  }
+
+  pipCamera.position.set(
+    Math.sin(rotY)*Math.cos(rotX)*d + panX,
+    Math.sin(rotX)*d + panY,
+    Math.cos(rotY)*Math.cos(rotX)*d
+  );
+  pipCamera.up.set(0,1,0);
+  pipCamera.lookAt(panX, panY, 0);
+  pipCamera.near=0.1;
+  pipCamera.far=Math.max(4000, d*30);
+  pipCamera.left=-frustum*asp; pipCamera.right=frustum*asp;
+  pipCamera.top=frustum; pipCamera.bottom=-frustum;
+  pipCamera.updateProjectionMatrix();
+  pipCamera.updateMatrixWorld();
+}
+
+function showPip(show){
+  const pipDiv=document.getElementById('pip');
+  const pipLbl=document.getElementById('pip-label');
+  if(show){
+    pipDiv.classList.add('visible');
+    updatePipCamera();
+    // Label: show which face the current elevation is looking at
+    const faceNames={plan:'Plan context',south:'South face',north:'North face',east:'East face',west:'West face'};
+    if(pipLbl) pipLbl.textContent=(faceNames[activeView]||'3D')+' — click to return';
+  } else {
+    pipDiv.classList.remove('visible');
+  }
+}
+
+function positionCamera(){
+  const d=orb.frustum*2.8;
+  // orb.targetY: model centroid Y — stable orbit pivot set at fit time
+  // orb.panY:    user right-drag pan offset (additive)
+  const lookY = orb.targetY + orb.panY;
+
+  const isPlan = orb.rotX > Math.PI*0.4;
+  if(isPlan){
+    camera.position.set(orb.panX, d, orb.panZ||0);
+    camera.up.set(0,0,-1);
+    camera.lookAt(orb.panX, 0, orb.panZ||0);
+  } else {
+    camera.position.set(
+      Math.sin(orb.rotY)*Math.cos(orb.rotX)*d + orb.panX,
+      Math.sin(orb.rotX)*d + lookY,
+      Math.cos(orb.rotY)*Math.cos(orb.rotX)*d
+    );
+    camera.up.set(0,1,0);
+    camera.lookAt(orb.panX, lookY, 0);
+  }
+  camera.near=0.1; camera.far=Math.max(8000,d*60);
+  updateCameraFrustum();
+  updateCompass();
+  updateDirLabels();
+  updateCutHandlePosition();
+  // Keep saved3D in sync — but only from 3D view (not snapped named views)
+  if(activeView==='3d'){
+    saved3D.rotY=orb.rotY; saved3D.rotX=orb.rotX;
+    saved3D.frustum=orb.frustum; saved3D.panX=orb.panX; saved3D.panY=orb.panY;
+    saved3D.targetY=orb.targetY;
+  }
+  updateDebug();
+
+  // In 3D, hide ground + grid when camera is snapped nearly horizontal (cardinal N/S/E/W snap)
+  if(activeView==='3d'){
+    const isCardinalSnap = orb.rotX < 0.05;
+    if(gridGroup) gridGroup.visible = !isCardinalSnap && S.showGrid;
+    scene.traverse(o=>{ if(o.userData.isGround) o.visible = !isCardinalSnap; });
+  }
+}
+
+function updateCameraFrustum(){
+  const c=document.getElementById('canvas');
+  const asp=c.clientWidth/c.clientHeight||1;
+  if(activeView==='north'){
+    camera.left=orb.frustum*asp; camera.right=-orb.frustum*asp;
+  } else {
+    camera.left=-orb.frustum*asp; camera.right=orb.frustum*asp;
+  }
+  camera.top=orb.frustum;camera.bottom=-orb.frustum;
+  // Keep near/far in sync with frustum — prevents depth precision collapse on zoom out
+  camera.near=0.1;
+  camera.far=Math.max(8000, orb.frustum*2.8*60);
+  camera.updateProjectionMatrix();
+}
+
+function updateCompass(){
+  const n=document.getElementById('compass-needle');if(!n)return;
+  // N is at angle -rotY from screen-up (same as eastAngle-π/2 converted to degrees)
+  n.setAttribute('transform',`rotate(${(-orb.rotY*180/Math.PI)%360},28,28)`);
+}
+
+// ── 3D ground direction labels ─────────────────────────────────
+// Labels are pinned to the screen edge at the correct compass bearing,
+// derived from orb.rotY — same math as the compass needle.
+// rotY=0 → camera at +Z, looking toward −Z = North, so N projects to screen-top.
+// Screen angle of North from screen-up: rotate by −rotY (same as needle).
+function updateDirLabels(){
+  const wrap=document.getElementById('dir-labels');if(!wrap)return;
+  const isVisible=activeView==='3d'||activeView==='plan';
+  wrap.style.display=isVisible?'':'none';
+  if(!isVisible||!camera)return;
+
+  const c=document.getElementById('canvas'),W=c.clientWidth,H=c.clientHeight;
+  if(!W||!H)return;
+
+  // Fixed cardinal labels on screen edges — N always top, S bottom, E right, W left.
+  // This matches plan view convention and gives a stable reference while orbiting.
+  const dirs=[
+    {id:'dl-n',label:'N',angle:0,            isNorth:true},
+    {id:'dl-s',label:'S',angle:Math.PI,      isNorth:false},
+    {id:'dl-e',label:'E',angle:Math.PI/2,    isNorth:false},
+    {id:'dl-w',label:'W',angle:-Math.PI/2,   isNorth:false},
+  ];
+
+  // Tighter margin in plan (labels complement the model, not orbit UI)
+  const mx=activeView==='plan'?36:44, my=activeView==='plan'?28:36;
+  const cx=W/2, cy=H/2;
+
+  // Target rotY for each cardinal when clicking label in 3D orbit
+  // Slight downward tilt (rotX) gives a readable elevation-like angle without locking to true ortho
+  const snapAngles={
+    N:{rotY:Math.PI,    rotX:0.001},
+    S:{rotY:0,          rotX:0.001},
+    E:{rotY:Math.PI/2,  rotX:0.001},
+    W:{rotY:-Math.PI/2, rotX:0.001},
+  };
+
+  dirs.forEach(d=>{
+    let el=wrap.querySelector('#'+d.id);
+    if(!el){
+      el=document.createElement('div');
+      el.id=d.id;el.className='dir-lbl'+(d.isNorth?' north':'');
+      // Click: snap orbit to this cardinal direction (stays in 3D, orbit still works after)
+      el.addEventListener('click',()=>{
+        if(activeView!=='3d') return;
+        const target=snapAngles[d.label];
+        if(!target) return;
+        // Find shortest rotation path for rotY
+        let fromY=orb.rotY;
+        let toY=target.rotY;
+        // Normalize difference to [-π, π] for shortest arc
+        let diff=((toY - fromY + Math.PI*3) % (Math.PI*2)) - Math.PI;
+        orbSnap.fromRotY=fromY;
+        orbSnap.toRotY=fromY+diff;
+        orbSnap.fromRotX=orb.rotX;
+        orbSnap.toRotX=target.rotX;
+        orbSnap.t=0;
+        orbSnap.active=true;
+        // Reset pan and pivot so model lands centred in true ortho position
+        orb.panX=0; orb.panY=0; orb.targetY=0;
+      });
+      wrap.appendChild(el);
+    }
+    el.textContent=d.label;
+
+    const sin=Math.sin(d.angle), cos=Math.cos(d.angle);
+    let t;
+    const eps=1e-6;
+    if(Math.abs(sin)<eps){
+      t=(cy-my)/Math.max(eps,Math.abs(cos));
+    } else if(Math.abs(cos)<eps){
+      t=(cx-mx)/Math.max(eps,Math.abs(sin));
+    } else {
+      t=Math.min((cx-mx)/Math.abs(sin),(cy-my)/Math.abs(cos));
+    }
+
+    const sx=cx + sin*t;
+    const sy=cy - cos*t;
+
+    el.style.display='';
+    el.style.left=sx+'px';
+    el.style.top=sy+'px';
+  });
+}
+
+function fitCamera(volumes,resetView=true){
+  if(!volumes||!volumes.length)return;
+  let x0=Infinity,x1=-Infinity,z0=Infinity,z1=-Infinity,y1=-Infinity;
+  for(const v of volumes){x0=Math.min(x0,v.x);x1=Math.max(x1,v.x+v.w);z0=Math.min(z0,v.z);z1=Math.max(z1,v.z+v.d);y1=Math.max(y1,v.h);}
+  const diag=Math.sqrt((x1-x0)**2+y1**2+(z1-z0)**2);
+  if(resetView){
+    orb.rotY=Math.PI/4; orb.rotX=Math.PI/9;
+    orb.frustum=fitFrustumForView('3d',lastBounds)||diag*0.6;
+    orb.panX=0; orb.panY=0; orb.targetY=y1*0.5; // orbit pivots at model mid-height
+    saved3D={rotY:orb.rotY,rotX:orb.rotX,frustum:orb.frustum,panX:0,panY:0,targetY:orb.targetY};
+  }
+  camera.near=0.1; camera.far=Math.max(8000,diag*60);
+  positionCamera();
+  rebuildGrid();
+}
+
+function setupOrbit(el){
+  el.addEventListener('mousedown',e=>{
+    if(activeView!=='3d')return; // lock orbit in named views
+    if(CUT.active&&(e.target.id==='cut-handle-grip'||e.target.id==='cut-handle-z-grip'))return;
+    orb.dragging=true;orb.right=e.button===2;orb.lastX=e.clientX;orb.lastY=e.clientY;e.preventDefault();
+  });
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+  window.addEventListener('mousemove',e=>{
+    if(!orb.dragging)return;
+    const dx=e.clientX-orb.lastX,dy=e.clientY-orb.lastY;orb.lastX=e.clientX;orb.lastY=e.clientY;
+    if(orb.right){orb.panX-=dx*0.04;orb.panY+=dy*0.04;}
+    else{orb.rotY-=dx*0.008;orb.rotX=Math.max(0.05,Math.min(Math.PI*0.38,orb.rotX-dy*0.006));}
+    positionCamera();
+  });
+  window.addEventListener('mouseup',()=>{orb.dragging=false;});
+  el.addEventListener('wheel',e=>{
+    // Normalise deltaY — trackpads fire many small events, mice fire fewer large ones
+    const delta=Math.sign(e.deltaY)*Math.min(Math.abs(e.deltaY),40); // cap per-tick delta
+    const scale=1+delta*0.006; // ~2.4% per normalised tick — smooth but not runaway
+    const maxFrustum=lastBounds?Math.max(lastBounds.maxX-lastBounds.minX,lastBounds.maxZ-lastBounds.minZ)*12:400;
+    orb.frustum=Math.max(1.5, Math.min(maxFrustum, orb.frustum*scale));
+    if(activeView!=='3d') VIEW_DEFS[activeView]._zoomed=true;
+    camera.far=Math.max(8000,orb.frustum*2.8*40);
+    updateCameraFrustum();
+    rebuildGrid();
+    if(activeView!=='3d') updateScaleBar();
+    updateScaleBar();
+    if(activeView==='south'||activeView==='east'||activeView==='north'||activeView==='west') buildSkyGradient(activeView);
+    e.preventDefault();
+  },{passive:false});
+}
+
+function onResize(){
+  const c=document.getElementById('canvas'),W=c.clientWidth,H=c.clientHeight;
+  if(!W||!H)return;
+  renderer.setSize(W,H);
+  if(activeView!=='3d' && lastBounds && !VIEW_DEFS[activeView]._zoomed){
+    orb.frustum=fitFrustumForView(activeView,lastBounds);
+  }
+  updateCameraFrustum();
+  updateScaleBar();
+}
+
+// ── Named view transitions ─────────────────────────────────────
+function applyNamedViewCamera(){
+  const b=lastBounds;
+  if(!VIEW_DEFS[activeView])return;
+  VIEW_DEFS[activeView].setCamera(b); // calls snapView → positionCamera
+  updateScaleBar();
+}
+
+function setView(view){
+  const wasDrawing=activeView!=='3d';
+  activeView=view;
+
+  // Update pill active state
+  document.querySelectorAll('.vp').forEach(p=>p.classList.toggle('active',p.dataset.view===view));
+
+  const canvas=document.getElementById('canvas');
+  const dpad=document.getElementById('dpad');
+  const compass=document.getElementById('compass');
+  const hint=document.getElementById('hint');
+  const viewLabel=document.getElementById('view-label');
+  const scalebar=document.getElementById('scalebar');
+  const stView=document.getElementById('st-view-info');
+
+  if(view==='3d'){
+    // Restore saved 3D orbit
+    orb.rotY=saved3D.rotY; orb.rotX=saved3D.rotX;
+    orb.frustum=saved3D.frustum; orb.panX=saved3D.panX; orb.panY=saved3D.panY;
+    orb.targetY=saved3D.targetY||orb.targetY;
+    // Reset _zoomed on all named views so next entry re-inherits 3D frustum
+    Object.values(VIEW_DEFS).forEach(v=>v._zoomed=false);
+    canvas.classList.remove('drawing-mode');
+    dpad.classList.remove('drawing');compass.classList.remove('drawing');
+    viewLabel.style.display='none';
+    scalebar.classList.remove('visible');
+    hint.innerHTML='X east · Y north · Z up  |  Drag · Scroll · Right-drag pan<br><span id="cut-hint" style="color:var(--gold)"></span>';
+    stView.textContent='';
+    renderer.shadowMap.enabled=S.showShadows;
+    // Hide sky gradient immediately — buildScene will finalise bg
+    const sg=document.getElementById('sky-grad');
+    if(sg){ sg.classList.remove('visible'); sg.innerHTML=''; }
+    document.getElementById('draw-vignette').classList.remove('visible');
+    clearPlanShadows();
+    showPip(false);
+    clearClippingPlanes();
+    buildScene(false);
+  } else {
+    // Reset zoom flag so setCamera uses fit frustum on entry
+    if(VIEW_DEFS[view]) VIEW_DEFS[view]._zoomed=false;
+    // Save current 3D state before leaving
+    if(!wasDrawing){
+      const MIN_ROT_X = Math.PI/8; // ~22.5° — minimum readable 3D angle
+      saved3D={rotY:orb.rotY,rotX:Math.max(orb.rotX,MIN_ROT_X),frustum:orb.frustum,panX:orb.panX,panY:orb.panY};
+    }
+    canvas.classList.add('drawing-mode');
+    dpad.classList.add('drawing');compass.classList.add('drawing');
+    viewLabel.style.display='block';
+    const vdef=VIEW_DEFS[view];
+    const parts=vdef.label.split('—');
+    const mainLabel=parts[0].trim();
+    const subLabel=parts[1]?parts[1].trim():'';
+    viewLabel.innerHTML=`${mainLabel}${subLabel?'<br><span style="color:rgba(122,112,80,.65);font-size:9px;letter-spacing:.12em">— ${subLabel}</span>':''}<br><span style="color:rgba(122,112,80,.5);font-size:9px;letter-spacing:.10em">MASS·${compNum}</span>`;
+    hint.textContent=VIEW_DEFS[view].hint;
+    scalebar.classList.add('visible');
+    stView.textContent=VIEW_DEFS[view].label.split('—')[0].trim();
+    renderer.shadowMap.enabled=S.showShadows && activeView==='3d';
+    const vig=document.getElementById('draw-vignette');
+    if(vig) vig.classList.toggle('visible', view!=='plan');
+    // Init PiP renderer on first named view entry
+    if(!pipRenderer) initPip();
+    showPip(true);
+    buildScene(true);
+    // Re-snap camera after a frame — guarantees canvas layout is settled
+    // and fitFrustumForView reads correct clientWidth/clientHeight.
+    // Called twice intentionally: once immediately (buildScene above) and once
+    // after layout settles (here) to catch any resize/reflow that shifts clientWidth.
+    requestAnimationFrame(()=>{
+      if(activeView==='3d') return;
+      if(!VIEW_DEFS[activeView]._zoomed){
+        orb.frustum=fitFrustumForView(activeView,lastBounds);
+        if(activeView!=='plan'){
+          orb.targetY=0; // must be zero so elevPanY math places ground correctly
+          orb.panY=elevPanY(orb.frustum);
+        }
+      }
+      // Always re-snap orb angles to guarantee correct orientation regardless of prior state
+      const a=VIEW_ANGLES[activeView];
+      if(a){ orb.rotY=a.rotY; orb.rotX=a.rotX; orb.panX=0; }
+      positionCamera();
+      updateCameraFrustum();
+      updateScaleBar();
+      if(activeView!=='plan') buildSkyGradient(activeView);
+    });
+  }
+}
+
+// ── Drawing mode material swap ─────────────────────────────────
+// We keep two sets of materials per mesh:
+// mesh.userData.mat3d  = original 3D material
+// mesh.userData.matDraw = drawing mode material
+// Swap on view change.
+
+function applyDrawingMode(){
+  renderer.setClearColor(0x000000, 0); // transparent — CSS gradient behind
+  if(scene.fog) scene.fog.color.setHex(DRAW.bg);
+  buildSkyGradient(activeView);
+  scene.traverse(obj=>{
+    if(!obj.userData.v)return;
+    if(obj.isLineSegments || (obj.isLine && !obj.userData.isBaseline)){
+      // Edges → dark (but not the ground baseline or blue grid — those have their own materials)
+      if(!obj.userData.matDraw){
+        obj.userData.mat3d=obj.material;
+        obj.userData.matDraw=new THREE.LineBasicMaterial({color:DRAW.edge});
+      }
+      obj.material=obj.userData.matDraw;
+    } else if(obj.isMesh){
+      if(!obj.userData.matDraw){
+        obj.userData.mat3d=obj.material;
+        // Ground plane → drawing ground
+        const isGround=obj.geometry.parameters&&obj.geometry.parameters.width===80;
+        if(isGround){
+          obj.userData.matDraw=new THREE.MeshBasicMaterial({color:DRAW.ground});
+        } else {
+          obj.userData.matDraw=new THREE.MeshBasicMaterial({color:DRAW.fill});
+        }
+      }
+      obj.material=obj.userData.matDraw;
+    }
+  });
+  // Grid helper → faint
+  // Blue Series grid lines are rebuilt per-view in buildScene — no swap needed
+  // (Legacy GridHelper no longer used)
+  // Poche cuts → near-black in drawing mode
+  CUT.pocheMeshes.forEach(obj=>{
+    if(obj.isMesh&&!obj.userData.pocheDrawSaved){
+      obj.userData.pocheDrawSaved=obj.material;
+      obj.material=new THREE.MeshBasicMaterial({color:DRAW.poche,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});
+    }
+    if(obj.isLineSegments&&!obj.userData.pocheEdgeDrawSaved){
+      obj.userData.pocheEdgeDrawSaved=obj.material;
+      obj.material=new THREE.LineBasicMaterial({color:DRAW.pocheEdge});
+    }
+  });
+}
+
+function restore3DMode(){
+  scene.traverse(obj=>{
+    if(!obj.userData.v)return;
+    if(obj.userData.mat3d) obj.material=obj.userData.mat3d;
+  });
+  // Blue Series grid lines rebuilt on next buildScene — no restore needed
+  CUT.pocheMeshes.forEach(obj=>{
+    if(obj.userData.pocheDrawSaved){obj.material=obj.userData.pocheDrawSaved;delete obj.userData.pocheDrawSaved;}
+    if(obj.userData.pocheEdgeDrawSaved){obj.material=obj.userData.pocheEdgeDrawSaved;delete obj.userData.pocheEdgeDrawSaved;}
+  });
+}
+
+// ── Scale bar (drawing mode) ──────────────────────────────────
+function updateScaleBar(){
+  if(activeView==='3d')return;
+  const c=document.getElementById('canvas');
+  const cw=c.clientWidth;
+  const asp=cw/c.clientHeight||1;
+  const worldW=orb.frustum*2*asp;
+  const worldPerPixel=worldW/cw;
+
+  // Elevation views: fixed 0–20' reference bar
+  // Plan view: dynamic bar that fits the zoom level
+  let barFt;
+  if(activeView==='plan'){
+    const nicesFt=[5,10,20,50,100,200,500];
+    const targetFt=worldPerPixel*120*M2FT;
+    barFt=nicesFt.reduce((a,b)=>Math.abs(b-targetFt)<Math.abs(a-targetFt)?b:a);
+  } else {
+    barFt=20; // fixed architectural reference for all elevation views
+  }
+
+  const barM=barFt/M2FT;
+  const barPx=barM/worldPerPixel;
+  const marks=document.getElementById('scalebar-marks');
+  marks.innerHTML='';
+  const segW=barPx/4;
+  for(let i=0;i<4;i++){
+    const seg=document.createElement('div');
+    seg.className='sb-seg';
+    seg.style.width=segW+'px';
+    marks.appendChild(seg);
+  }
+  document.getElementById('scalebar-label').textContent=`0  ——  ${barFt}'`;
+}
+
+// ── Generate ──────────────────────────────────────────────────
+function generate(){
+  const rp=mkRng(S.seeds.p),rh=mkRng(S.seeds.h),rc=mkRng(S.seeds.c);
+  const pal=PALETTES[S.pal];
+  const PC=S.planCols,PR=S.planRows;
+  const colW=Array.from({length:PC},()=>BLUE[Math.min(Math.floor(rp()*Math.max(3,S.bwIdx+1)),BLUE.length-1)]);
+  const rowD=Array.from({length:PR},()=>BLUE[Math.floor(rp()*Math.max(3,S.duIdx+1))]);
+  const grid=Array.from({length:PR},(_,r)=>Array.from({length:PC},(_,c)=>({
+    col:c,row:r,x:colW.slice(0,c).reduce((a,b)=>a+b,0),z:rowD.slice(0,r).reduce((a,b)=>a+b,0),
+    w:colW[c],d:rowD[r],spanC:1,spanR:1,merged:false,void:false,
+  })));
+  const mp=S.planMerge/100;
+  for(let r=0;r<PR;r++)for(let c=0;c<PC-1;c++){
+    if(grid[r][c].merged)continue;
+    if(rp()<mp){const ri=grid[r][c+1];if(!ri.merged){grid[r][c].w+=ri.w;grid[r][c].spanC++;ri.merged=true;}}
+  }
+  for(let r=0;r<PR-1;r++)for(let c=0;c<PC;c++){
+    if(grid[r][c].merged)continue;const b=grid[r+1][c];
+    if(b.merged||grid[r][c].spanC!==b.spanC)continue;
+    if(rp()<mp*0.6){grid[r][c].d+=b.d;grid[r][c].spanR++;b.merged=true;}
+  }
+  const voidMap=Array.from({length:PR},()=>new Array(PC).fill(false));
+  const volumes=[];let lf=-1;
+  for(let r=0;r<PR;r++)for(let c=0;c<PC;c++){
+    const cell=grid[r][c];if(cell.merged)continue;
+    if(rh()<S.voidP/100){cell.void=true;for(let dr=0;dr<cell.spanR;dr++)for(let dc=0;dc<cell.spanC;dc++)if(r+dr<PR&&c+dc<PC)voidMap[r+dr][c+dc]=true;continue;}
+    const hR=Math.max(1,S.htMax-S.htMin);
+    const hIdx=S.htMin+Math.floor(rh()*(hR+1));
+    const height=BLUE[Math.min(hIdx,BLUE.length-1)];
+    let fi;do{fi=Math.floor(rc()*pal.fills.length);}while(fi===lf&&pal.fills.length>1);lf=fi;
+    volumes.push({x:cell.x,y:0,z:cell.z,w:cell.w,h:height,d:cell.d,fillIdx:fi,htIdx:hIdx,gridR:r,gridC:c,spanR:cell.spanR,spanC:cell.spanC});
+  }
+  let mX=0,mZ=0,mY=0;
+  for(const v of volumes){mX=Math.max(mX,v.x+v.w);mZ=Math.max(mZ,v.z+v.d);mY=Math.max(mY,v.h);}
+  const cx=mX/2,cz=mZ/2;for(const v of volumes){v.x-=cx;v.z-=cz;}
+  return{volumes,voidMap,grid,PC,PR,totalW:mX,totalD:mZ,totalH:mY};
+}
+
+// ── Facade ────────────────────────────────────────────────────
+// Horizontal band logic with volume-derived grid.
+// Bay width and floor height are fitted to actual volume XYZ dimensions
+// using Blue Series values — facade grid is always coherent with the massing.
+// Grid scale slider biases toward finer (low) or coarser (high) subdivision.
+
+function fitBlueToDim(dim, gsi, minBays, maxBays){
+  // gsi 0=fine → 3=coarse. Hard-map to target bay counts:
+  const targets=[5,3,2,1];
+  const targetN=Math.max(minBays, Math.min(maxBays, targets[Math.min(gsi,3)]));
+  // Search within ±1 of targetN — exact match preferred
+  let bestBaySize=dim/targetN, bestN=targetN, bestScore=Infinity;
+  for(let n=Math.max(minBays,targetN-1); n<=Math.min(maxBays,targetN+1); n++){
+    const baySize=dim/n;
+    // Find nearest Blue Series value to this bay size
+    let nearestErr=Infinity;
+    for(let i=0;i<BLUE.length-1;i++){
+      nearestErr=Math.min(nearestErr, Math.abs(BLUE[i]-baySize)/baySize);
+    }
+    const nPenalty=Math.abs(n-targetN)*0.20; // strong preference for exact targetN
+    const score=nearestErr+nPenalty;
+    if(score<bestScore){ bestScore=score; bestBaySize=baySize; bestN=n; }
+  }
+  return {baySize:bestBaySize, nBays:bestN};
+}
+
+// Real relief depths for proud panels — step over solid at every index.
+// Solid is always SOLID_THICK (thin skin). Proud adds on top of that.
+// So proud depth = SOLID_THICK + relief step, guaranteed positive at all settings.
+const SOLID_THICK = 0.03; // 3cm / ~1.2" — thin flush cladding skin
+const RELIEF_STEPS=[0.03, 0.06, 0.10, 0.15, 0.22, 0.35]; // additional protrusion beyond solid
+const RELIEF_DEPTHS=RELIEF_STEPS.map(s=>SOLID_THICK+s); // total proud depth
+const RELIEF_LABELS=['1"','2"','4"','6"','9"','14"'];
+
+function buildFacade(vol,face,sw,rngF){
+  const gsi=3-S.facGridIdx; // invert: slider left=coarse(3), right=fine(0)
+  let fW,fH;
+  if(face==='N'||face==='S'){ fW=vol.w; fH=vol.h; }
+  else { fW=vol.d; fH=vol.h; }
+
+  const {baySize:abW, nBays:nB} = fitBlueToDim(fW, gsi, 2, 8);
+  // Height uses gsi-1 (one step finer than width) so floors always subdivide more than bays
+  const {baySize:afH, nBays:nF} = fitBlueToDim(fH, Math.max(0,gsi-1), 1, 8);
+
+  // Relief depth: cap against the smaller plan dimension so N/S/E/W faces
+  // never get proud depth disproportionate to the volume they sit on.
+  const minPlanDim = Math.min(vol.w, vol.d);
+  const rd = Math.min(
+    RELIEF_DEPTHS[Math.min(S.facReliefIdx, RELIEF_DEPTHS.length-1)],
+    minPlanDim * 0.08
+  );
+
+  // Density: direct mapping — 100% = all middle floors covered
+  // sw (void-adjacency weight) adds a small bonus on exposed faces, doesn't reduce coverage
+  const baseFd = S.facDensity / 100;
+  const fd = Math.min(1, baseFd + sw * 0.15 * baseFd); // sw adds up to 15% bonus, never penalises
+
+  const panels=[];
+  const svMode=S.facSVMode;
+  const rhythm=(100-S.facRhythm)/100;
+
+  // Proud column probability scales with bay count — fewer bays = higher per-column chance
+  // so compositions always have at least 1 proud column.
+  // In SV mode non-proud bays are always spandrel/vision — no point rolling colType.
+  const proudChance = nB <= 2 ? 0.55 : nB <= 3 ? 0.45 : 0.35;
+  const colType=Array.from({length:nB},()=>rngF()<proudChance?'proud':'solid');
+
+  // Base and parapet only appear when density > 0
+  const hasAnyPanels = fd > 0;
+
+  // SV: track a separate floor index for non-base/non-parapet bands so the
+  // spandrel/vision alternation starts clean from the first real floor (fi=1)
+  // regardless of which bands density skips.
+  let svFloor=0;
+
+  for(let fi=0;fi<nF;fi++){
+    const isBase    = fi===0;
+    const isParapet = fi===nF-1 && nF>1;
+    const bandActive = hasAnyPanels && (isBase || isParapet || rngF()<=fd);
+    if(!bandActive) continue;
+
+    for(let bi=0;bi<nB;bi++){
+      let type;
+      if(isBase){
+        type = svMode ? 'spandrel' : 'solid';
+      } else if(isParapet){
+        type = 'proud';
+      } else {
+        if(svMode){
+          // In SV mode: proud columns still proud; non-proud bays alternate spandrel/vision
+          // by svFloor so the rhythm is always spandrel → vision → spandrel…
+          // Rhythm slider breaks a proud run back to spandrel (not vision) for legibility.
+          if(colType[bi]==='proud'){
+            type='proud';
+            if(rhythm>0 && rngF()<rhythm) type='spandrel';
+          } else {
+            type = (svFloor % 2 === 0) ? 'vision' : 'spandrel';
+          }
+        } else {
+          type=colType[bi];
+          if(type==='proud' && rhythm>0 && rngF()<rhythm) type='solid';
+        }
+      }
+      // Parapet: use a thin cap height (1/3 of floor height) so it reads as a detail not a band
+      const ph = isParapet ? Math.min(afH, afH*0.33) : afH;
+      const pv = isParapet ? fi*afH + (afH - ph) : fi*afH;
+      panels.push({u:bi*abW,v:pv,w:abW,h:ph,type,reliefDepth:rd});
+    }
+    if(!isBase && !isParapet) svFloor++;
+  }
+  return panels;
+}
+function facadeTo3D(vol,face,panels){
+  const out=[];
+  for(const p of panels){
+    if(p.type==='void') continue;
+    const proud   = p.type==='proud';
+    const vision  = p.type==='vision';
+    // vision panels recess behind the face plane; spandrel and solid sit flush (SOLID_THICK skin)
+    const depth  = proud ? p.reliefDepth : SOLID_THICK;
+    // vision: inset 2.5× SOLID_THICK — reads as glazing set back behind the spandrel datum
+    const inset  = vision ? SOLID_THICK * 2.5 : 0;
+    const offset = proud ? depth/2 : (SOLID_THICK/2 - inset);
+    let px,py,pz,pw,ph,pd;
+    py = vol.y + p.v + p.h/2;
+    if(face==='N'){
+      px=vol.x+p.u+p.w/2; pz=vol.z+vol.d+offset;
+      pw=p.w; ph=p.h; pd=depth;
+    } else if(face==='S'){
+      px=vol.x+p.u+p.w/2; pz=vol.z-offset;
+      pw=p.w; ph=p.h; pd=depth;
+    } else if(face==='E'){
+      px=vol.x+vol.w+offset; pz=vol.z+p.u+p.w/2;
+      pw=depth; ph=p.h; pd=p.w;
+    } else {
+      px=vol.x-offset; pz=vol.z+p.u+p.w/2;
+      pw=depth; ph=p.h; pd=p.w;
+    }
+    out.push({px,py,pz,pw,ph,pd,type:p.type});
+  }
+  return out;
+}
+
+
+// ── Persistent Infinite Blue Series Ground Grid ───────────────
+// gridGroup lives outside buildScene cleanup (no userData.v).
+// buildLineGrid() creates the geometry once; rebuildGrid() just
+// repositions the group so it follows the camera pan.
+const GRID_HALFLEN = 30000;
+let gridGroup = null;
+
+function buildLineGrid(isDrawing) {
+  // Dispose old group if any
+  if(gridGroup){
+    scene.remove(gridGroup);
+    gridGroup.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); });
+  }
+  gridGroup = new THREE.Group();
+  gridGroup.userData.isGridGroup = true;
+
+  const PAD_STEPS = 6;
+  const b = lastBounds || {minX:-5,maxX:5,minZ:-5,maxZ:5};
+
+  function bluePositions(maxExtent) {
+    const pos = [0];
+    let acc = 0, i = 0;
+    while (acc < maxExtent + BLUE[Math.min(PAD_STEPS, BLUE.length-1)]) {
+      acc += BLUE[i % BLUE.length];
+      pos.push(acc); pos.push(-acc);
+      i++; if (i > 20) break;
+    }
+    return [...new Set(pos)].sort((a, b2) => a - b2);
+  }
+
+  function isMajor(positions, p) {
+    const absUnique = [...new Set(positions.map(v => Math.abs(v)))].sort((a,b2)=>a-b2);
+    const idx = absUnique.indexOf(Math.abs(p));
+    return idx % 2 === 0;
+  }
+
+  const extentX = Math.max(Math.abs(b.minX), Math.abs(b.maxX)) + BLUE[PAD_STEPS];
+  const extentZ = Math.max(Math.abs(b.minZ), Math.abs(b.maxZ)) + BLUE[PAD_STEPS];
+  const posX = bluePositions(extentX);
+  const posZ = bluePositions(extentZ);
+
+  const colMinor  = new THREE.Color(0x3A3428);
+  const colMajor  = new THREE.Color(0x5A5040);
+  const colOrigin = new THREE.Color(0x7A6840);
+
+  function addLine(x0, z0, x1, z1, col, opacity=1.0) {
+    const points = [new THREE.Vector3(x0, 0.01, z0), new THREE.Vector3(x1, 0.01, z1)];
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = new THREE.LineBasicMaterial({ color: col, transparent: opacity < 1, opacity });
+    const line = new THREE.Line(geo, mat);
+    line.frustumCulled = false;
+    if(isDrawing) line.userData.planOnly = true;
+    line.userData.pipHide = true;
+    gridGroup.add(line);
+  }
+
+  const L = GRID_HALFLEN;
+  for (const x of posX) {
+    const isOrigin = Math.abs(x) < 0.001;
+    const major = isOrigin || isMajor(posX, x);
+    const col = isOrigin ? colOrigin : major ? colMajor : colMinor;
+    const opacity = isOrigin ? 0.7 : major ? 0.55 : 0.35;
+    addLine(x, -L, x, L, col, opacity);
+  }
+  for (const z of posZ) {
+    const isOrigin = Math.abs(z) < 0.001;
+    const major = isOrigin || isMajor(posZ, z);
+    const col = isOrigin ? colOrigin : major ? colMajor : colMinor;
+    const opacity = isOrigin ? 0.7 : major ? 0.55 : 0.35;
+    addLine(-L, z, L, z, col, opacity);
+  }
+
+  scene.add(gridGroup);
+}
+
+// Reposition grid group to follow camera pan — no geometry rebuild.
+function rebuildGrid() {
+  if(activeView !== '3d' && activeView !== 'plan') return;
+  // In 3D, hide grid when camera is snapped flat (cardinal elevation view)
+  const isCardinalSnap = activeView==='3d' && orb.rotX < 0.05;
+  if(isCardinalSnap){ if(gridGroup) gridGroup.visible=false; return; }
+  if(!S.showGrid){ if(gridGroup) gridGroup.visible=false; return; }
+  if(!gridGroup) {
+    buildLineGrid(activeView === 'plan');
+    return;
+  }
+  if(activeView === 'plan') {
+    gridGroup.position.set(orb.panX, 0, orb.panZ || 0);
+  } else {
+    gridGroup.position.set(0, 0, 0);
+  }
+  gridGroup.visible = true;
+}
+
+// ── Scene build ───────────────────────────────────────────────
+function buildScene(resetView=true){
+  const rem=[];
+  scene.traverse(o=>{if(o.userData.v||o.userData.cut)rem.push(o);});
+  rem.forEach(o=>{
+    scene.remove(o);
+    if(o.geometry)o.geometry.dispose();
+    if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}
+  });
+  CUT.pocheMeshes=[];CUT.ghostMesh=null;
+
+  const pal=PALETTES[S.pal];
+  const isDrawing=activeView!=='3d';
+  const isPlan=activeView==='plan';
+  // Background
+  if(isPlan){
+    // Plan: opaque renderer clear — same dark bg as 3D, ground mesh handles ground color
+    renderer.setClearColor(pal.bg, 1);
+    if(scene.fog) scene.fog.color.setHex(pal.bg);
+    const sg=document.getElementById('sky-grad');
+    if(sg){ sg.classList.remove('visible'); sg.innerHTML=''; }
+  } else if(isDrawing){
+    renderer.setClearColor(0x000000, 0); // fully transparent — CSS gradient shows through
+    if(scene.fog) scene.fog.color.setHex(DRAW.bg);
+    buildSkyGradient(activeView);
+  } else {
+    renderer.setClearColor(pal.bg, 1);
+    if(scene.fog) scene.fog.color.setHex(pal.bg);
+    const sg=document.getElementById('sky-grad');
+    if(sg){ sg.classList.remove('visible'); sg.innerHTML=''; }
+  }
+
+  const{volumes,voidMap,grid,PC,PR,totalW,totalD,totalH}=generate();
+  // heightMap: height of whichever volume occupies each grid cell (0 = empty/void)
+  // solidMap: boolean derived from heightMap, used for edge drawing
+  const heightMap=Array.from({length:PR},()=>new Array(PC).fill(0));
+  for(const v of volumes)
+    for(let dr=0;dr<v.spanR;dr++) for(let dc=0;dc<v.spanC;dc++)
+      heightMap[v.gridR+dr][v.gridC+dc]=v.h;
+  const solidMap=heightMap.map(row=>row.map(h=>h>0));
+  lastVolumes=volumes;
+  let x0=Infinity,x1=-Infinity,z0=Infinity,z1=-Infinity,y1=0;
+  for(const v of volumes){x0=Math.min(x0,v.x);x1=Math.max(x1,v.x+v.w);z0=Math.min(z0,v.z);z1=Math.max(z1,v.z+v.d);y1=Math.max(y1,v.h);}
+  lastBounds={minX:x0,maxX:x1,minY:0,maxY:y1,minZ:z0,maxZ:z1};
+
+  // Ground plane
+  // - 3D: standard palette ground, receives shadows
+  // Ground plane mesh — only in 3D and Plan views.
+  // In elevation views (N/S/E/W) a 2000×2000 plane viewed edge-on fills the
+  // entire width as a thick band at Y=0, regardless of material colour.
+  // The CSS gradient backdrop handles ground tone in drawing mode; the
+  // baseline Line handles the ground read in elevation drawing mode.
+  const isElevation = activeView==='north'||activeView==='south'||activeView==='east'||activeView==='west';
+  if(S.showGround && !isElevation){
+    // Both 3D and plan use MeshStandardMaterial so ambient+sun light gives the same warm tone
+    const gMat=new THREE.MeshStandardMaterial({color:pal.ground,roughness:1});
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(10000,10000),gMat);
+    ground.rotation.x=-Math.PI/2;ground.receiveShadow=S.showShadows && !isDrawing;
+    ground.frustumCulled=false;
+    ground.userData.v=true; ground.userData.pipHide=true; ground.userData.isGround=true;
+    scene.add(ground);
+  }
+  // Blue Series ground grid: only in 3D and Plan view
+  // In elevation views (south/east) the XZ ground grid reads as noise
+  if((!isDrawing || activeView==='plan') && S.showGrid){
+    buildLineGrid(isDrawing && activeView==='plan');
+  } else if(gridGroup) {
+    gridGroup.visible = false;
+  }
+
+  // Drawing mode: ground baseline — a single crisp near-black line that renders
+  // on top of all volume faceEdge bottom segments (renderOrder 5, depthTest:false).
+  // This is the "nice black line" — one clean stroke at Y=0, full-width + padding,
+  // superseding the staggered accumulation of per-volume bottom edges.
+  const baseLineMat=new THREE.LineBasicMaterial({color:DRAW.edge,depthTest:false,depthWrite:false});
+  if(isDrawing){
+    const b=lastBounds, pad=Math.max(4, (b.maxX-b.minX)*0.12);
+    let pts=null;
+    if(activeView==='north')      pts=[new THREE.Vector3(b.minX-pad,0.02,b.minZ),  new THREE.Vector3(b.maxX+pad,0.02,b.minZ)];
+    else if(activeView==='south') pts=[new THREE.Vector3(b.minX-pad,0.02,b.maxZ),  new THREE.Vector3(b.maxX+pad,0.02,b.maxZ)];
+    else if(activeView==='east')  pts=[new THREE.Vector3(b.maxX,0.02,b.minZ-pad),  new THREE.Vector3(b.maxX,0.02,b.maxZ+pad)];
+    else if(activeView==='west')  pts=[new THREE.Vector3(b.minX,0.02,b.minZ-pad),  new THREE.Vector3(b.minX,0.02,b.maxZ+pad)];
+    if(pts){
+      const base=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), baseLineMat);
+      base.renderOrder=5;        // draw after volume faceEdge outlines (renderOrder 0)
+      base.frustumCulled=false;  // always render
+      base.userData.v=true;
+      base.userData.isBaseline=true; // exempt from applyDrawingMode edge swap
+      scene.add(base);
+    }
+    if(activeView==='plan'){
+      // Plan: a subtle outline around the entire footprint extent
+      const corners=[
+        new THREE.Vector3(b.minX-pad*0.3, 0.02, b.minZ-pad*0.3),
+        new THREE.Vector3(b.maxX+pad*0.3, 0.02, b.minZ-pad*0.3),
+        new THREE.Vector3(b.maxX+pad*0.3, 0.02, b.maxZ+pad*0.3),
+        new THREE.Vector3(b.minX-pad*0.3, 0.02, b.maxZ+pad*0.3),
+        new THREE.Vector3(b.minX-pad*0.3, 0.02, b.minZ-pad*0.3),
+      ];
+      const frame=new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(corners),
+        new THREE.LineBasicMaterial({color:pal.edge,transparent:true,opacity:0.18})
+      );
+      frame.userData.v=true; frame.userData.planOnly=true; scene.add(frame);
+    }
+  }
+
+  // Per-volume facade RNG: each volume gets its own deterministic sub-stream
+  // derived from the global facade seed XOR'd with the volume's grid position.
+  // This means locking the facade seed holds each volume's panels stable
+  // while plan/height/colour seeds can vary freely.
+  function mkVolRngF(vol){ return mkRng(S.seeds.f ^ (vol.gridR * 9973 + vol.gridC * 1009 + 1)); }
+
+  // In elevation drawing views, sort volumes back-to-front (painter's algorithm)
+  // so rear volumes are drawn first and front volumes correctly occlude them
+  if(isDrawing && activeView!=='plan' && volumes.length){
+    // Sort by front face (not center) — more accurate painter order when volumes differ in depth.
+    // North (cam at -Z → looking +Z): front = low Z → draw high Z first (ascending v.z)
+    // South (cam at +Z → looking -Z): front = high Z face → draw low Z first (ascending v.z+v.d)
+    // East  (cam at +X → looking -X): front = high X face → draw low X first (ascending v.x+v.w)
+    // West  (cam at -X → looking +X): front = low X face → draw high X first (descending v.x)
+    if(activeView==='north')       volumes.sort((a,b)=>b.z - a.z);               // high Z = back → drawn first
+    else if(activeView==='south')  volumes.sort((a,b)=>(a.z+a.d)-(b.z+b.d));     // low front-Z = back → drawn first
+    else if(activeView==='east')   volumes.sort((a,b)=>(a.x+a.w)-(b.x+b.w));     // low front-X = back → drawn first
+    else if(activeView==='west')   volumes.sort((a,b)=>b.x - a.x);               // high X = back → drawn first
+  }
+
+  let depthMin=0, depthMax=1, depthFn=()=>0;
+  if(isDrawing && volumes.length){
+    if(activeView==='north'){
+      depthMin=lastBounds.minZ; depthMax=lastBounds.maxZ;
+      depthFn=v=>(v.z-depthMin)/Math.max(0.01,depthMax-depthMin); // low v.z (front face) = 0 = lightest
+    } else if(activeView==='south'){
+      depthMin=lastBounds.minZ; depthMax=lastBounds.maxZ;
+      depthFn=v=>1-((v.z+v.d)-depthMin)/Math.max(0.01,depthMax-depthMin); // high front face Z = 0 = lightest
+    } else if(activeView==='east'){
+      depthMin=lastBounds.minX; depthMax=lastBounds.maxX;
+      depthFn=v=>1-((v.x+v.w)-depthMin)/Math.max(0.01,depthMax-depthMin); // high front face X = 0 = lightest
+    } else if(activeView==='west'){
+      depthMin=lastBounds.minX; depthMax=lastBounds.maxX;
+      depthFn=v=>(v.x-depthMin)/Math.max(0.01,depthMax-depthMin); // low v.x (front face) = 0 = lightest
+    }
+  }
+
+  // Drawing fill tones
+  // Elevation: front=light → back=darker (depth cue) — now wider contrast range
+  // Plan: short=light → tall=darker (height cue, standard architectural convention)
+  // Both views: subtle palette colour tint blended into the grey fill
+
+  // Drawing fills: use actual palette colour, modulated by depth (elevation) or height (plan)
+  // This keeps the colour identity of the 3D view while adding spatial reading cues
+
+  function hexToRgb(hex){ return {r:(hex>>16)&0xff, g:(hex>>8)&0xff, b:hex&0xff}; }
+
+  function drawFill(v, view){
+    if(!isDrawing) return null;
+    const base=pal.fills[v.fillIdx];
+    const {r,g,b}=hexToRgb(base);
+
+    if(view==='plan'){
+      // Darken by height: tallest volumes are 42% darker, shortest stay near original
+      const maxHt=Math.max(1, S.htMax-S.htMin);
+      const t=Math.min(1,(v.htIdx-S.htMin)/maxHt); // 0=short, 1=tall
+      const darken=1 - t*0.42; // 1.0 → 0.58
+      return new THREE.Color(
+        Math.round(r*darken)/255,
+        Math.round(g*darken)/255,
+        Math.round(b*darken)/255
+      );
+    }
+
+    // Elevation: depth darkening — front full colour, back 48% darker
+    const t=depthFn(v); // 0=front, 1=back
+    const darken=1 - t*0.48;
+    return new THREE.Color(
+      Math.round(r*darken)/255,
+      Math.round(g*darken)/255,
+      Math.round(b*darken)/255
+    );
+  }
+
+  for(const v of volumes){
+    const col3d=new THREE.Color(pal.fills[v.fillIdx]);
+    const fillCol=isDrawing?drawFill(v,activeView):col3d;
+
+    // Edge colour: use palette edge in drawing mode too, but modulate opacity by depth in elevation
+    let edgeCol=isDrawing?pal.edge:pal.edge;
+    if(isDrawing && activeView!=='plan' && activeView!=='3d'){
+      // Front edges: full palette edge. Back edges: fade toward fill colour more aggressively.
+      const dt=depthFn(v);
+      const er=(pal.edge>>16)&0xff, eg=(pal.edge>>8)&0xff, eb=pal.edge&0xff;
+      const {r:fr,g:fg,b:fb}=hexToRgb(pal.fills[v.fillIdx]);
+      const blend=dt*0.72; // 0=full edge colour, 0.72=strongly blended toward fill
+      edgeCol=(Math.round(er+(fr-er)*blend)<<16)|(Math.round(eg+(fg-eg)*blend)<<8)|Math.round(eb+(fb-eb)*blend);
+    }
+
+    const geo=new THREE.BoxGeometry(v.w,v.h,v.d);
+    const mat=isDrawing
+      ?new THREE.MeshBasicMaterial({color:fillCol,depthWrite:true,depthTest:true})
+      :new THREE.MeshStandardMaterial({color:col3d,roughness:0.82,metalness:0.02});
+    const mesh=new THREE.Mesh(geo,mat);
+    if(!isDrawing && S.showShadows){mesh.castShadow=true;mesh.receiveShadow=true;}
+    mesh.userData.v=true;mesh.position.set(v.x+v.w/2,v.h/2,v.z+v.d/2);scene.add(mesh);
+
+    // Only draw exterior edges — skip edges on faces shared with adjacent solid volumes
+    if(!isDrawing || activeView==='plan'){
+      const gr=v.gridR, gc=v.gridC;
+      const hasN = gr+v.spanR < PR && solidMap[gr+v.spanR][gc]; // solid to north
+      const hasS = gr > 0 && solidMap[gr-1][gc];
+      const hasE = gc+v.spanC < PC && solidMap[gr][gc+v.spanC];
+      const hasW = gc > 0 && solidMap[gr][gc-1];
+      // Build edge segments manually: only include the 4 vertical pillars + top/bottom edges
+      // on exterior faces
+      const ex=v.x, ex2=v.x+v.w, ey=0, ey2=v.h, ez=v.z, ez2=v.z+v.d;
+      const edgePts=[];
+      // 4 vertical corner edges — always draw
+      edgePts.push(ex,ey,ez, ex,ey2,ez);   // SW vertical
+      edgePts.push(ex2,ey,ez, ex2,ey2,ez); // SE vertical
+      edgePts.push(ex2,ey,ez2, ex2,ey2,ez2); // NE vertical
+      edgePts.push(ex,ey,ez2, ex,ey2,ez2); // NW vertical
+      // Bottom horizontal edges (exterior faces only)
+      if(!hasS) edgePts.push(ex,ey,ez, ex2,ey,ez);   // S bottom
+      if(!hasN) edgePts.push(ex,ey,ez2, ex2,ey,ez2); // N bottom
+      if(!hasW) edgePts.push(ex,ey,ez, ex,ey,ez2);   // W bottom
+      if(!hasE) edgePts.push(ex2,ey,ez, ex2,ey,ez2); // E bottom
+      // Top horizontal edges (exterior faces only)
+      if(!hasS) edgePts.push(ex,ey2,ez, ex2,ey2,ez);   // S top
+      if(!hasN) edgePts.push(ex,ey2,ez2, ex2,ey2,ez2); // N top
+      if(!hasW) edgePts.push(ex,ey2,ez, ex,ey2,ez2);   // W top
+      if(!hasE) edgePts.push(ex2,ey2,ez, ex2,ey2,ez2); // E top
+      if(edgePts.length){
+        const edgeGeo=new THREE.BufferGeometry();
+        const positions=new Float32Array(edgePts);
+        edgeGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+        const edgeLine=new THREE.LineSegments(edgeGeo,new THREE.LineBasicMaterial({color:edgeCol}));
+        edgeLine.userData.v=true;
+        scene.add(edgeLine);
+      }
+    }
+
+    // Plan view: add height-reading cues directly in Three.js
+    // Plan view height cues — always show (independent of shadow toggle)
+    if(isDrawing && activeView==='plan'){
+      const maxH=Math.max(1,lastBounds.maxY);
+      const t=Math.min(1,v.h/maxH);
+
+      if(S.showShadows){
+        // Ground shadow plane — offset SE, opacity scales with height
+        const shadowOffset=t*1.8+0.2;
+        const shadowOpacity=0.08+t*0.30;
+        const shadowGrow=shadowOffset*0.5;
+        const shadowGeo=new THREE.PlaneGeometry(v.w+shadowGrow,v.d+shadowGrow);
+        const shadowMat=new THREE.MeshBasicMaterial({
+          color:0x000000,transparent:true,opacity:shadowOpacity,
+          depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1
+        });
+        const shadowMesh=new THREE.Mesh(shadowGeo,shadowMat);
+        shadowMesh.rotation.x=-Math.PI/2;
+        shadowMesh.position.set(v.x+v.w/2+shadowOffset*0.75,0.005,v.z+v.d/2+shadowOffset*0.75);
+        shadowMesh.userData.v=true; shadowMesh.userData.planOnly=true; scene.add(shadowMesh);
+      }
+
+      // Top face highlight — always show, no z-fighting via polygonOffset
+      const {r:fr,g:fg,b:fb}=hexToRgb(pal.fills[v.fillIdx]);
+      const lighten=Math.min(1.35,1+t*0.18);
+      const topCol=new THREE.Color(
+        Math.min(1,fr/255*lighten),
+        Math.min(1,fg/255*lighten),
+        Math.min(1,fb/255*lighten)
+      );
+      const topGeo=new THREE.PlaneGeometry(v.w-0.04,v.d-0.04);
+      const topMat=new THREE.MeshBasicMaterial({
+        color:topCol,depthWrite:false,
+        polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2
+      });
+      const topMesh=new THREE.Mesh(topGeo,topMat);
+      topMesh.rotation.x=-Math.PI/2;
+      topMesh.position.set(v.x+v.w/2,v.h+0.02,v.z+v.d/2);
+      topMesh.userData.v=true; topMesh.userData.planOnly=true; scene.add(topMesh);
+
+      // Top edge outline
+      const topEdgeGeo=new THREE.EdgesGeometry(new THREE.BoxGeometry(v.w,0.001,v.d));
+      const topEdgeMat=new THREE.LineBasicMaterial({color:pal.edge,transparent:true,opacity:0.5+t*0.5});
+      const topEdge=new THREE.LineSegments(topEdgeGeo,topEdgeMat);
+      topEdge.position.set(v.x+v.w/2,v.h+0.022,v.z+v.d/2);
+      topEdge.userData.v=true; topEdge.userData.planOnly=true; scene.add(topEdge);
+    }
+
+    // Elevation drawing mode: draw the visible front-face outline of each volume.
+    // North: v.z (min-Z face)   East: v.x+v.w (max-X face)
+    // South: v.z+v.d (max-Z face)  West: v.x (min-X face)
+    if(isDrawing && activeView!=='plan'){
+      const dt=depthFn(v);
+      const edgeOpacity=Math.max(0.15, 1.0 - dt*0.65);
+      const faceEdgeMat=new THREE.LineBasicMaterial({
+        color:pal.edge, transparent:true, opacity:edgeOpacity,
+        depthTest:true, depthWrite:false
+      });
+      let facePoints=[];
+      if(activeView==='north'){
+        const x0=v.x, x1=v.x+v.w, y0=0, y1=v.h, z=v.z;
+        facePoints=[
+          new THREE.Vector3(x0,y0,z), new THREE.Vector3(x1,y0,z),
+          new THREE.Vector3(x1,y1,z), new THREE.Vector3(x0,y1,z),
+          new THREE.Vector3(x0,y0,z),
+        ];
+      } else if(activeView==='south'){
+        const x0=v.x, x1=v.x+v.w, y0=0, y1=v.h, z=v.z+v.d;
+        facePoints=[
+          new THREE.Vector3(x0,y0,z), new THREE.Vector3(x1,y0,z),
+          new THREE.Vector3(x1,y1,z), new THREE.Vector3(x0,y1,z),
+          new THREE.Vector3(x0,y0,z),
+        ];
+      } else if(activeView==='east'){
+        const z0=v.z, z1=v.z+v.d, y0=0, y1=v.h, x=v.x+v.w;
+        facePoints=[
+          new THREE.Vector3(x,y0,z0), new THREE.Vector3(x,y0,z1),
+          new THREE.Vector3(x,y1,z1), new THREE.Vector3(x,y1,z0),
+          new THREE.Vector3(x,y0,z0),
+        ];
+      } else if(activeView==='west'){
+        const z0=v.z, z1=v.z+v.d, y0=0, y1=v.h, x=v.x;
+        facePoints=[
+          new THREE.Vector3(x,y0,z0), new THREE.Vector3(x,y0,z1),
+          new THREE.Vector3(x,y1,z1), new THREE.Vector3(x,y1,z0),
+          new THREE.Vector3(x,y0,z0),
+        ];
+      }
+      if(facePoints.length){
+        const faceEdge=new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints(facePoints),
+          faceEdgeMat
+        );
+        faceEdge.userData.v=true;
+        scene.add(faceEdge);
+      }
+    }
+    // Facade panels
+    // In 3D: render all faces with standard materials
+    // In drawing mode elevation: render only the visible face with drawing materials
+    if(S.facDensity===0) continue;
+
+    // Determine which faces to render
+    let facesToRender;
+    if(!isDrawing){
+      facesToRender=['N','S','E','W'];
+    } else if(activeView==='plan'){
+      continue; // no facade panels in plan — top-down doesn't show vertical faces
+    } else {
+      // Map elevation view → visible building geometry face (N/S/E/W are facadeTo3D labels):
+      // 'N' face = panels at vol.z+vol.d (maxZ), 'S' = vol.z (minZ), 'E' = vol.x+vol.w (maxX), 'W' = vol.x (minX)
+      // south view (cam at +Z, sees maxZ faces) → 'N' panels ✓
+      // north view (cam at -Z, sees minZ faces) → 'S' panels ✓
+      // east  view (cam at +X, sees maxX faces) → 'E' panels ✓
+      // west  view (cam at -X, sees minX faces) → 'W' panels ✓
+      const faceMap={south:'N', north:'S', east:'E', west:'W'};
+      const visibleFace=faceMap[activeView];
+      if(!visibleFace) continue;
+      facesToRender=[visibleFace];
+    }
+
+    for(const face of facesToRender){
+      // Skip panels on interior faces — only when neighbour fully covers this face (height >=)
+      let interior=false;
+      const gr=v.gridR,gc=v.gridC;
+      if(face==='N'){
+        const nr=gr+v.spanR;
+        if(nr<PR){
+          let allCovered=true;
+          for(let dc=0;dc<v.spanC;dc++){
+            if(heightMap[nr][gc+dc]<v.h){allCovered=false;break;}
+          }
+          if(allCovered) interior=true;
+        }
+      } else if(face==='S'){
+        if(gr>0){
+          let allCovered=true;
+          for(let dc=0;dc<v.spanC;dc++){
+            if(heightMap[gr-1][gc+dc]<v.h){allCovered=false;break;}
+          }
+          if(allCovered) interior=true;
+        }
+      } else if(face==='E'){
+        const nc=gc+v.spanC;
+        if(nc<PC){
+          let allCovered=true;
+          for(let dr=0;dr<v.spanR;dr++){
+            if(heightMap[gr+dr][nc]<v.h){allCovered=false;break;}
+          }
+          if(allCovered) interior=true;
+        }
+      } else {
+        if(gc>0){
+          let allCovered=true;
+          for(let dr=0;dr<v.spanR;dr++){
+            if(heightMap[gr+dr][gc-1]<v.h){allCovered=false;break;}
+          }
+          if(allCovered) interior=true;
+        }
+      }
+      if(interior) continue;
+
+      let adj=false;
+      if(face==='N'){const nr=gr+v.spanR;for(let dc=0;dc<v.spanC;dc++){if(nr<PR&&voidMap[nr][gc+dc]){adj=true;break;}}}
+      else if(face==='S'){for(let dc=0;dc<v.spanC;dc++){if(gr>0&&voidMap[gr-1][gc+dc]){adj=true;break;}}}
+      else if(face==='E'){const nc=gc+v.spanC;for(let dr=0;dr<v.spanR;dr++){if(nc<PC&&voidMap[gr+dr][nc]){adj=true;break;}}}
+      else{for(let dr=0;dr<v.spanR;dr++){if(gc>0&&voidMap[gr+dr][gc-1]){adj=true;break;}}}
+      // sw: void-adjacency bonus — faces next to voids get slightly denser coverage
+      // No height penalty — density should be consistent regardless of volume height
+      const sw = adj ? 0.6 : 0.0;
+      for(const md of facadeTo3D(v,face,buildFacade(v,face,sw,mkVolRngF(v)))){
+        const ip=md.type==='proud';
+        const isSp=md.type==='spandrel';
+        const isVi=md.type==='vision';
+        let pm;
+        if(isDrawing){
+          // Drawing mode: flat material matching the volume's depth-modulated fill
+          // Proud panels: slightly lighter. Solid/spandrel: match volume fill. Vision: lighter (glazing read).
+          const base=pal.fills[v.fillIdx];
+          const {r:br,g:bg,b:bb}=hexToRgb(base);
+          const dt=depthFn(v);
+          const lightenFactor=ip?1.08:isVi?1.14:1.0;
+          const darken=(1 - dt*0.48)*lightenFactor;
+          const panelCol=new THREE.Color(
+            Math.min(1,Math.round(br*darken)/255),
+            Math.min(1,Math.round(bg*darken)/255),
+            Math.min(1,Math.round(bb*darken)/255)
+          );
+          pm=new THREE.Mesh(
+            new THREE.BoxGeometry(Math.max(0.01,md.pw),Math.max(0.01,md.ph),Math.max(0.01,md.pd)),
+            new THREE.MeshBasicMaterial({color:panelCol,depthWrite:true,depthTest:true,
+              polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4})
+          );
+        } else {
+          // 3D material:
+          // proud   → lighter relief step (existing logic)
+          // spandrel→ dark opaque band — darker than solid, reads as floor slab / opaque cladding
+          // vision  → lighter, slightly blue-tinted — reads as glazing
+          // solid   → existing flush cladding field
+          const lum = col3d.r*0.299 + col3d.g*0.587 + col3d.b*0.114;
+          let panelColor, panelRoughness;
+          if(ip){
+            // Proud: lighten from vol fill
+            if(lum > 0.75){
+              panelColor = new THREE.Color(col3d.r*0.60, col3d.g*0.60, col3d.b*0.60);
+            } else if(lum > 0.35){
+              panelColor = col3d.clone().lerp(new THREE.Color(1,1,1), 0.45);
+            } else {
+              panelColor = col3d.clone().lerp(new THREE.Color(1,1,1), 0.65);
+            }
+            panelRoughness=0.6;
+          } else if(isSp){
+            // Spandrel: dark opaque — blend vol fill toward near-black
+            panelColor = col3d.clone().lerp(new THREE.Color(0.04,0.04,0.04), 0.55);
+            panelRoughness=0.95;
+          } else if(isVi){
+            // Vision (glazing): lighter + cool blue tint — reads as glass against spandrel bands
+            panelColor = col3d.clone().lerp(new THREE.Color(0.72,0.82,0.92), 0.55);
+            panelRoughness=0.15;
+          } else {
+            // Solid (default): slightly darker flush cladding
+            const darkenAmt = lum > 0.5 ? 0.82 : 0.72;
+            panelColor = new THREE.Color(col3d.r*darkenAmt, col3d.g*darkenAmt, col3d.b*darkenAmt);
+            panelRoughness=0.9;
+          }
+          pm=new THREE.Mesh(
+            new THREE.BoxGeometry(Math.max(0.01,md.pw),Math.max(0.01,md.ph),Math.max(0.01,md.pd)),
+            new THREE.MeshStandardMaterial({
+              color: panelColor,
+              roughness:panelRoughness, metalness: isVi ? 0.18 : 0.0,
+              polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-12
+            })
+          );
+        }
+        pm.castShadow=S.showShadows && !isDrawing;
+        pm.receiveShadow=S.showShadows && !isDrawing;
+        pm.userData.v=true;
+        pm.position.set(md.px,md.py,md.pz);
+        scene.add(pm);
+      }
+    }
+
+    // ── Corner returns ─────────────────────────────────────────────
+    // Panel-condition driven: only place a proud return at a corner band
+    // where BOTH adjacent face corner columns are proud at that Y range.
+    // Flush skin return always present on exterior corners (seals the base gap).
+    // Only in 3D, only when facade is active.
+    if(!isDrawing && S.facDensity > 0){
+      const gr=v.gridR, gc=v.gridC;
+      const extN = !(gr+v.spanR < PR && solidMap[gr+v.spanR][gc]); // N face exterior
+      const extS = !(gr > 0 && solidMap[gr-1][gc]);
+      const extE = !(gc+v.spanC < PC && solidMap[gr][gc+v.spanC]);
+      const extW = !(gc > 0 && solidMap[gr][gc-1]);
+
+      const lum = col3d.r*0.299 + col3d.g*0.587 + col3d.b*0.114;
+      let proudReturnCol;
+      if(lum>0.75)      proudReturnCol=new THREE.Color(col3d.r*0.60,col3d.g*0.60,col3d.b*0.60);
+      else if(lum>0.35) proudReturnCol=col3d.clone().lerp(new THREE.Color(1,1,1),0.45);
+      else              proudReturnCol=col3d.clone().lerp(new THREE.Color(1,1,1),0.65);
+      const proudMat = new THREE.MeshStandardMaterial({
+        color:proudReturnCol, roughness:0.62, metalness:0.0,
+        polygonOffset:true, polygonOffsetFactor:-6, polygonOffsetUnits:-12
+      });
+
+      const minPlanDim=Math.min(v.w,v.d);
+      const proudD=Math.min(
+        RELIEF_DEPTHS[Math.min(S.facReliefIdx,RELIEF_DEPTHS.length-1)],
+        minPlanDim*0.08
+      );
+
+      // Pre-generate panels for all four faces so we can check corner columns.
+      function faceAdj(face){
+        let adj=false;
+        if(face==='N'){const nr=gr+v.spanR;for(let dc=0;dc<v.spanC;dc++){if(nr<PR&&voidMap[nr][gc+dc]){adj=true;break;}}}
+        else if(face==='S'){for(let dc=0;dc<v.spanC;dc++){if(gr>0&&voidMap[gr-1][gc+dc]){adj=true;break;}}}
+        else if(face==='E'){const nc=gc+v.spanC;for(let dr=0;dr<v.spanR;dr++){if(nc<PC&&voidMap[gr+dr][nc]){adj=true;break;}}}
+        else{for(let dr=0;dr<v.spanR;dr++){if(gc>0&&voidMap[gr+dr][gc-1]){adj=true;break;}}}
+        return adj;
+      }
+      const facePanels={};
+      for(const face of['N','S','E','W']){
+        const sw=faceAdj(face)?0.6:0.0;
+        facePanels[face]=buildFacade(v,face,sw,mkVolRngF(v));
+      }
+
+      // Get proud bands from the specific corner column of a face.
+      // u = bi * abW (floats) — use sorted unique u list + tolerance to find corner bay.
+      function cornerProud(face, atEnd){
+        const panels=facePanels[face];
+        if(!panels||!panels.length) return[];
+        const uSet=[];
+        for(const p of panels){
+          if(!uSet.some(u=>Math.abs(u-p.u)<0.0001)) uSet.push(p.u);
+        }
+        uSet.sort((a,b)=>a-b);
+        const targetU = atEnd ? uSet[uSet.length-1] : uSet[0];
+        return panels.filter(p=>Math.abs(p.u-targetU)<0.0001 && p.type==='proud');
+      }
+
+      function placeCorner(xSign, zSign, faceA, aAtEnd, faceB, bAtEnd){
+        const cx = xSign>0 ? v.x+v.w : v.x;
+        const cz = zSign>0 ? v.z+v.d : v.z;
+        // No flush strip — the volume geometry itself fills the corner at skin depth.
+        // Only fill the gap that proud panels create: place returns only at proud band Y ranges.
+        const bands=[];
+        for(const p of cornerProud(faceA,aAtEnd)) bands.push({y0:p.v,y1:p.v+p.h});
+        for(const p of cornerProud(faceB,bAtEnd)) bands.push({y0:p.v,y1:p.v+p.h});
+        if(!bands.length) return;
+        bands.sort((a,b)=>a.y0-b.y0);
+        const merged=[];
+        for(const b of bands){
+          if(merged.length && b.y0<=merged[merged.length-1].y1+0.002)
+            merged[merged.length-1].y1=Math.max(merged[merged.length-1].y1,b.y1);
+          else merged.push({y0:b.y0,y1:b.y1});
+        }
+        for(const b of merged){
+          const bh=b.y1-b.y0;
+          const cp=new THREE.Mesh(new THREE.BoxGeometry(proudD,bh,proudD),proudMat);
+          cp.position.set(cx+xSign*proudD/2, b.y0+bh/2, cz+zSign*proudD/2);
+          cp.userData.v=true; scene.add(cp);
+        }
+      }
+
+      if(extN&&extE) placeCorner(+1,+1,'N',true, 'E',true);   // NE
+      if(extN&&extW) placeCorner(-1,+1,'N',false,'W',true);   // NW
+      if(extS&&extE) placeCorner(+1,-1,'S',true, 'E',false);  // SE
+      if(extS&&extW) placeCorner(-1,-1,'S',false,'W',false);  // SW
+    }
+  }
+
+  if(resetView){
+    if(activeView==='3d')fitCamera(volumes,true);
+    else applyNamedViewCamera();
+  } else if(activeView!=='3d'){
+    applyNamedViewCamera();
+  }
+
+  // ── Hidden-line pass for elevation drawing views ───────────────
+  // After all solid volumes are drawn, add faint dashed ghost outlines
+  // for volumes that are partially or fully occluded in the current view.
+  if(isDrawing && activeView!=='plan'){
+    let depthKey, screenRect, ghostFacePoints;
+    if(activeView==='north'){
+      // Camera at -Z: front = low Z face (v.z)
+      depthKey=v=>v.z;
+      screenRect=v=>({u0:v.x, u1:v.x+v.w, y0:0, y1:v.h});
+      ghostFacePoints=v=>{
+        const x0=v.x,x1=v.x+v.w,y0=0,y1=v.h,z=v.z+v.d*0.5;
+        return[new THREE.Vector3(x0,y0,z),new THREE.Vector3(x1,y0,z),new THREE.Vector3(x1,y1,z),new THREE.Vector3(x0,y1,z),new THREE.Vector3(x0,y0,z)];
+      };
+    } else if(activeView==='south'){
+      // Camera at +Z: front = high Z face (v.z+v.d). Sort: low (v.z+v.d) = back.
+      depthKey=v=>-(v.z+v.d);
+      screenRect=v=>({u0:v.x, u1:v.x+v.w, y0:0, y1:v.h});
+      ghostFacePoints=v=>{
+        const x0=v.x,x1=v.x+v.w,y0=0,y1=v.h,z=v.z+v.d*0.5;
+        return[new THREE.Vector3(x0,y0,z),new THREE.Vector3(x1,y0,z),new THREE.Vector3(x1,y1,z),new THREE.Vector3(x0,y1,z),new THREE.Vector3(x0,y0,z)];
+      };
+    } else if(activeView==='east'){
+      // Camera at +X: front = high X face (v.x+v.w). Low (v.x+v.w) = back.
+      depthKey=v=>-(v.x+v.w);
+      screenRect=v=>({u0:v.z, u1:v.z+v.d, y0:0, y1:v.h});
+      ghostFacePoints=v=>{
+        const z0=v.z,z1=v.z+v.d,y0=0,y1=v.h,x=v.x+v.w*0.5;
+        return[new THREE.Vector3(x,y0,z0),new THREE.Vector3(x,y0,z1),new THREE.Vector3(x,y1,z1),new THREE.Vector3(x,y1,z0),new THREE.Vector3(x,y0,z0)];
+      };
+    } else if(activeView==='west'){
+      // Camera at -X: front = low X face (v.x). High v.x = back.
+      depthKey=v=>v.x;
+      screenRect=v=>({u0:v.z, u1:v.z+v.d, y0:0, y1:v.h});
+      ghostFacePoints=v=>{
+        const z0=v.z,z1=v.z+v.d,y0=0,y1=v.h,x=v.x+v.w*0.5;
+        return[new THREE.Vector3(x,y0,z0),new THREE.Vector3(x,y0,z1),new THREE.Vector3(x,y1,z1),new THREE.Vector3(x,y1,z0),new THREE.Vector3(x,y0,z0)];
+      };
+    }
+    if(depthKey && screenRect && ghostFacePoints){
+      // Sort front-to-back
+      const sorted=[...volumes].sort((a,b)=>depthKey(a)-depthKey(b));
+      for(let i=0;i<sorted.length;i++){
+        const v=sorted[i];
+        const rv=screenRect(v);
+        // Check overlap against all closer (front) volumes
+        let overlapArea=0;
+        for(let j=0;j<i;j++){
+          const rf=screenRect(sorted[j]);
+          const ow=Math.max(0,Math.min(rv.u1,rf.u1)-Math.max(rv.u0,rf.u0));
+          const oh=Math.max(0,Math.min(rv.y1,rf.y1)-Math.max(rv.y0,rf.y0));
+          overlapArea+=ow*oh;
+        }
+        if(overlapArea<0.1) continue; // not meaningfully occluded
+        // Draw a dashed ghost outline — opacity scales with how much is hidden
+        const vArea=(rv.u1-rv.u0)*(rv.y1-rv.y0)||1;
+        const occFrac=Math.min(1, overlapArea/vArea);
+        const ghostOpacity=0.12+occFrac*0.20;
+        const ghostMat=new THREE.LineDashedMaterial({
+          color:pal.edge, transparent:true, opacity:ghostOpacity,
+          dashSize:0.32, gapSize:0.20,
+          depthTest:false, depthWrite:false,
+        });
+        const pts=ghostFacePoints(v);
+        const ghostGeo=new THREE.BufferGeometry().setFromPoints(pts);
+        const ghostLine=new THREE.Line(ghostGeo,ghostMat);
+        ghostLine.computeLineDistances();
+        ghostLine.renderOrder=10; // render after all solid fills (depthTest:false → always visible)
+        ghostLine.userData.v=true;
+        scene.add(ghostLine);
+      }
+    }
+  }
+
+  // Rebuild sky gradient AFTER camera is positioned — projection-based horizon needs settled camera
+  if(activeView!=='3d'){
+    buildSkyGradient(activeView);
+    // Update view debug info in statbar
+    const si=document.getElementById('st-view-info');
+    if(si && activeView!=='3d'){
+      const cp=camera.position;
+      si.textContent=`cam (${cp.x.toFixed(1)},${cp.y.toFixed(1)},${cp.z.toFixed(1)}) · ${volumes.length}v`;
+    }
+  }
+
+  clearPlanShadows(); // clear SVG shadows when not in plan view (animate loop handles plan)
+  if(activeView==='plan' && lastVolumes.length && S.showShadows){
+    renderPlanShadows(lastVolumes);
+  }
+
+  if(CUT.active && activeView==='3d'){
+    const b=lastBounds,t=S.cutPos;
+    CUT.worldPos=CUT.axis==='x'?b.minX+t*(b.maxX-b.minX):CUT.axis==='y'?b.minZ+t*(b.maxZ-b.minZ):b.minY+t*(b.maxY-b.minY);
+    applyCut();updateCutHandlePosition();
+  } else if(activeView!=='3d'){
+    clearClippingPlanes();
+  }
+
+  document.getElementById('st-w').textContent=fmtImperial(totalW);
+  document.getElementById('st-d').textContent=fmtImperial(totalD);
+  document.getElementById('st-h').textContent=fmtImperial(totalH);
+  document.getElementById('st-c').textContent=volumes.length;
+  document.getElementById('st-p').textContent=pal.name;
+  updateScaleBar();
+}
+
+// ── Plan view height shadows ──────────────────────────────────
+function clearPlanShadows(){
+  const svg=document.getElementById('plan-shadow-svg');
+  svg.classList.remove('visible');
+  svg.innerHTML='';
+}
+
+function renderPlanShadows(volumes){
+  const svg=document.getElementById('plan-shadow-svg');
+  const canvasEl=document.getElementById('canvas');
+  const W=canvasEl.clientWidth, H=canvasEl.clientHeight;
+  if(!W||!H||!camera){svg.classList.remove('visible');return;}
+
+  svg.setAttribute('width',W);
+  svg.setAttribute('height',H);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  // World → screen projection using the current ortho camera
+  function worldToSvg(wx, wz){
+    const v=new THREE.Vector3(wx, 0, wz).project(camera);
+    return { x:(v.x*.5+.5)*W, y:(-v.y*.5+.5)*H };
+  }
+
+  // Estimate pixel scale: how many pixels per world unit?
+  // Use two known world points to derive scale
+  const p0=worldToSvg(0,0);
+  const p1=worldToSvg(1,0);
+  const pxPerUnit=Math.abs(p1.x-p0.x)||8;
+
+  // Height range for shadow scaling
+  const maxH=Math.max(1, lastBounds.maxY);
+
+  // Shadow convention: sun from upper-left (NW), offset = right+down in screen space
+  // Shadow offset scales with building height and pixel density
+  // At maxH: ~0.6 world units offset. At minH: ~0.1 world units.
+  // We use a defs blur filter for soft edge, applied to coloured filled polygons
+
+  let defs='<defs>';
+  // One gaussian blur filter — softens shadow edge
+  defs+=`<filter id="psblur" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="4.5" result="blur"/>
+  </filter>`;
+  defs+='</defs>';
+
+  // Sort volumes back-to-front so taller shadows don't hide shorter ones
+  // In plan view, all at Y=0 from above, so sort by height descending (taller draws first = underneath)
+  const sorted=[...volumes].sort((a,b)=>b.h-a.h);
+
+  let polys='';
+  for(const v of sorted){
+    const t=Math.min(1, v.h/maxH);
+
+    // Shadow offset in screen pixels, direction: right+down (sun NW)
+    const offsetPx = t * pxPerUnit * 0.70 + pxPerUnit*0.05;
+    const ox=offsetPx * 0.85;   // rightward
+    const oy=offsetPx * 0.85;   // downward
+
+    // Shadow opacity: subtle for short, clearly visible for tall
+    const shadowOpacity=(0.07 + t*0.24).toFixed(3);
+
+    // Footprint corners in world space → screen space
+    const tl=worldToSvg(v.x,     v.z);
+    const tr=worldToSvg(v.x+v.w, v.z);
+    const br=worldToSvg(v.x+v.w, v.z+v.d);
+    const bl=worldToSvg(v.x,     v.z+v.d);
+
+    // Offset each corner by the shadow offset
+    const pts=[
+      `${tl.x+ox},${tl.y+oy}`,
+      `${tr.x+ox},${tr.y+oy}`,
+      `${br.x+ox},${br.y+oy}`,
+      `${bl.x+ox},${bl.y+oy}`,
+    ].join(' ');
+
+    polys+=`<polygon points="${pts}" fill="rgba(20,16,10,${shadowOpacity})" filter="url(#psblur)"/>`;
+  }
+
+  svg.innerHTML=defs+polys;
+  svg.classList.add('visible');
+}
+
+// ── Sky / ground gradient (elevation views) ───────────────────
+function buildSkyGradient(view){
+  if(view==='plan') return; // plan uses opaque renderer — no CSS gradient needed
+  const sg=document.getElementById('sky-grad');
+  sg.innerHTML='';
+  const pal=PALETTES[S.pal];
+
+  // horizonY: what % from top does world Y=0 (ground) appear?
+  // Camera looks at panY in world space. Frustum extends ±frustum above/below that.
+  // World Y=0 is at distance panY below the lookAt point.
+  // Screen fraction from top = 0.5 + panY/(2*frustum)  [0=top, 1=bottom]
+  let horizonY = 68; // fallback: ~68% from top = 32% from bottom
+  if(orb && orb.frustum > 0){
+    // fraction from top where Y=0 falls: 0.5 + panY/(2*f)
+    const frac = 0.5 + orb.panY / (2 * orb.frustum);
+    horizonY = Math.max(30, Math.min(90, frac * 100));
+  }
+
+  // Dark palette background — matches 3D and plan views
+  const bgCss=`#${pal.bg.toString(16).padStart(6,'0')}`;
+  // Horizon glow: a faint warm glint at ground level
+  const palHorizonGlow={
+    mondrian:'#C8B882', unite:'#A06030', habitat:'#806848', neutral:'#484848',
+  };
+  const hGlow=palHorizonGlow[S.pal]||palHorizonGlow.neutral;
+
+  sg.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="sg-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="${bgCss}"/>
+        <stop offset="100%" stop-color="${bgCss}"/>
+      </linearGradient>
+      <linearGradient id="sg-hglow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"                          stop-color="${hGlow}" stop-opacity="0"/>
+        <stop offset="${Math.max(5,horizonY-10)}%" stop-color="${hGlow}" stop-opacity="0"/>
+        <stop offset="${horizonY}%"                stop-color="${hGlow}" stop-opacity="0.18"/>
+        <stop offset="${Math.min(99,horizonY+12)}%" stop-color="${hGlow}" stop-opacity="0"/>
+        <stop offset="100%"                        stop-color="${hGlow}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#sg-sky)"/>
+    <rect width="100%" height="100%" fill="url(#sg-hglow)"/>
+  </svg>`;
+  sg.classList.add('visible');
+}
+
+function clearClippingPlanes(){
+  scene.traverse(obj=>{
+    if(obj.userData.v&&obj.material){
+      const ms=Array.isArray(obj.material)?obj.material:[obj.material];
+      ms.forEach(m=>{m.clippingPlanes=[];m.needsUpdate=true;});
+    }
+  });
+}
+function animate(){
+  requestAnimationFrame(animate);
+  // Smooth orbit snap tween — easeInOut cubic
+  if(orbSnap.active && activeView==='3d' && !orb.dragging){
+    orbSnap.t = Math.min(orbSnap.t + 1, orbSnap.dur);
+    const p = orbSnap.t / orbSnap.dur;
+    const ease = p<0.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
+    orb.rotY = orbSnap.fromRotY + (orbSnap.toRotY - orbSnap.fromRotY) * ease;
+    orb.rotX = orbSnap.fromRotX + (orbSnap.toRotX - orbSnap.fromRotX) * ease;
+    positionCamera();
+    updateDirLabels();
+    if(orbSnap.t >= orbSnap.dur){
+      orbSnap.active=false;
+      // Reframe: recalculate frustum for the snapped angle without touching rotY/rotX
+      if(lastBounds && lastVolumes.length){
+        orb.frustum = fitFrustumForView('3d', lastBounds);
+        orb.panX=0; orb.panY=0; orb.targetY=lastBounds.maxY*0.5;
+        const b=lastBounds, diag=Math.sqrt((b.maxX-b.minX)**2+b.maxY**2+(b.maxZ-b.minZ)**2);
+        camera.near=0.1; camera.far=Math.max(8000,diag*60);
+        positionCamera(); updateCameraFrustum(); updateScaleBar(); rebuildGrid();
+      }
+    }
+  }
+  if(renderer&&scene&&camera) renderer.render(scene,camera);
+  if(activeView==='plan' && lastVolumes.length && S.showShadows){
+    renderPlanShadows(lastVolumes);
+  }
+  // PiP: render same scene with saved 3D camera when in named view
+  if(pipRenderer&&pipCamera&&activeView!=='3d'){
+    // Temporarily clear clipping planes so PiP shows full uncut model
+    const clips=[];
+    scene.traverse(obj=>{
+      if(obj.userData.v&&obj.material){
+        const ms=Array.isArray(obj.material)?obj.material:[obj.material];
+        ms.forEach(m=>{ clips.push([m, m.clippingPlanes]); m.clippingPlanes=[]; });
+      }
+    });
+    // Temporarily restore 3D materials for PiP render
+    const swaps=[];
+    scene.traverse(obj=>{
+      if(obj.userData.v&&obj.userData.mat3d){
+        swaps.push([obj, obj.material]);
+        obj.material=obj.userData.mat3d;
+      }
+    });
+    // Hide plan-only objects and ground/grid — they look wrong on transparent PiP bg
+    const planOnlyHidden=[];
+    scene.traverse(obj=>{
+      if(obj.userData.planOnly||obj.userData.pipHide){ planOnlyHidden.push(obj); obj.visible=false; }
+    });
+    pipRenderer.setClearColor(0x000000,0); // transparent — drawing bg shows through
+    pipRenderer.render(scene,pipCamera);
+    // Restore everything
+    planOnlyHidden.forEach(obj=>{ obj.visible=true; });
+    swaps.forEach(([obj,mat])=>{ obj.material=mat; });
+    clips.forEach(([m,cp])=>{ m.clippingPlanes=cp; });
+  }
+}
+
+// ── Section cut ───────────────────────────────────────────────
+function worldToScreen(wv){
+  const c=document.getElementById('canvas'),w=c.clientWidth,h=c.clientHeight;
+  const v=wv.clone().project(camera);
+  return{x:(v.x*.5+.5)*w,y:(-v.y*.5+.5)*h};
+}
+function updateCutHandlePosition(){
+  const handle=document.getElementById('cut-handle');
+  const handleZ=document.getElementById('cut-handle-z');
+  const cw=document.getElementById('canvas').clientWidth;
+  const ch=document.getElementById('canvas').clientHeight;
+
+  // Hide both by default
+  if(!CUT.active){ handle.style.display='none'; handle.classList.remove('visible'); handleZ.style.display='none'; handleZ.classList.remove('visible'); return; }
+
+  if(CUT.axis==='z'){
+    // Horizontal handle for Z (height) cut
+    handle.style.display='none'; handle.classList.remove('visible');
+    const midX=(lastBounds.minX+lastBounds.maxX)*.5;
+    const wpt=new THREE.Vector3(midX, CUT.worldPos, 0);
+    const sc=worldToScreen(wpt);
+    handleZ.style.top=Math.max(4,Math.min(ch-4,sc.y)-2)+'px';
+    handleZ.style.display='block'; handleZ.classList.add('visible');
+  } else {
+    // Vertical handle for X/Y cut
+    handleZ.style.display='none'; handleZ.classList.remove('visible');
+    const midY=(lastBounds.minY+lastBounds.maxY)*.5;
+    let wpt;
+    if(CUT.axis==='x')wpt=new THREE.Vector3(CUT.worldPos,midY,0);
+    else wpt=new THREE.Vector3(0,midY,CUT.worldPos);
+    const sc=worldToScreen(wpt);
+    handle.style.left=Math.max(4,Math.min(cw-4,sc.x)-2)+'px';
+    handle.style.display='block';handle.classList.add('visible');
+  }
+}
+function applyCut(){
+  removeCutObjects();if(!CUT.active)return;
+  const pal=PALETTES[S.pal],axis=CUT.axis,pos=CUT.worldPos;
+  const isDrawing=activeView!=='3d';
+  let normal;
+  if(axis==='x')      normal=new THREE.Vector3(-1,0,0);
+  else if(axis==='y') normal=new THREE.Vector3(0,0,-1);
+  else                normal=new THREE.Vector3(0,-1,0);
+  CUT.plane=new THREE.Plane(normal,pos);
+  scene.traverse(obj=>{if(obj.userData.v&&obj.material){const ms=Array.isArray(obj.material)?obj.material:[obj.material];ms.forEach(m=>{m.clippingPlanes=[CUT.plane];m.needsUpdate=true;});}});
+  const b=lastBounds,PAD=2;
+  // Ghost plane (3D only)
+  if(!isDrawing){
+    const ghostMat=new THREE.MeshBasicMaterial({color:AXIS_HEX[axis],transparent:true,opacity:.10,side:THREE.DoubleSide,depthWrite:false});
+    let gGeo,gPos;
+    if(axis==='x'){
+      gGeo=new THREE.PlaneGeometry(b.maxZ-b.minZ+PAD*2,b.maxY-b.minY+PAD*2);
+      gPos=new THREE.Vector3(pos,(b.minY+b.maxY)/2,(b.minZ+b.maxZ)/2);
+      const m=new THREE.Mesh(gGeo,ghostMat);m.rotation.y=Math.PI/2;m.position.copy(gPos);m.userData.cut=true;CUT.ghostMesh=m;scene.add(m);
+    }else if(axis==='y'){
+      gGeo=new THREE.PlaneGeometry(b.maxX-b.minX+PAD*2,b.maxY-b.minY+PAD*2);
+      gPos=new THREE.Vector3((b.minX+b.maxX)/2,(b.minY+b.maxY)/2,pos);
+      const m=new THREE.Mesh(gGeo,ghostMat);m.position.copy(gPos);m.userData.cut=true;CUT.ghostMesh=m;scene.add(m);
+    }else{
+      gGeo=new THREE.PlaneGeometry(b.maxX-b.minX+PAD*2,b.maxZ-b.minZ+PAD*2);
+      gPos=new THREE.Vector3((b.minX+b.maxX)/2,pos,(b.minZ+b.maxZ)/2);
+      const m=new THREE.Mesh(gGeo,ghostMat);m.rotation.x=-Math.PI/2;m.position.copy(gPos);m.userData.cut=true;CUT.ghostMesh=m;scene.add(m);
+    }
+    if(CUT.ghostMesh){
+      const ge=new THREE.LineSegments(new THREE.EdgesGeometry(gGeo),new THREE.LineBasicMaterial({color:AXIS_HEX[axis],transparent:true,opacity:.45}));
+      ge.rotation.copy(CUT.ghostMesh.rotation);ge.position.copy(gPos);ge.userData.cut=true;scene.add(ge);
+    }
+  }
+  // Poche caps
+  const pocheColor=isDrawing?new THREE.Color(DRAW.poche):new THREE.Color(pal.poche).lerp(new THREE.Color(AXIS_HEX[axis]),0.08);
+  const pocheEdgeColor=isDrawing?DRAW.pocheEdge:pal.pocheEdge;
+  for(const v of lastVolumes){
+    const vx0=v.x,vx1=v.x+v.w,vy0=v.y,vy1=v.y+v.h,vz0=v.z,vz1=v.z+v.d;
+    const pMat=new THREE.MeshBasicMaterial({color:pocheColor,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,side:THREE.DoubleSide});
+    if(axis==='x'){
+      if(pos<vx0||pos>vx1)continue;
+      const g=new THREE.PlaneGeometry(vz1-vz0,vy1-vy0),cp=new THREE.Vector3(pos,(vy0+vy1)/2,(vz0+vz1)/2);
+      const m=new THREE.Mesh(g,pMat);m.rotation.y=Math.PI/2;m.position.copy(cp);m.userData.cut=true;CUT.pocheMeshes.push(m);scene.add(m);
+      addPocheEdge(g,m.rotation,cp,pocheEdgeColor);
+    }else if(axis==='y'){
+      if(pos<vz0||pos>vz1)continue;
+      const g=new THREE.PlaneGeometry(vx1-vx0,vy1-vy0),cp=new THREE.Vector3((vx0+vx1)/2,(vy0+vy1)/2,pos);
+      const m=new THREE.Mesh(g,pMat);m.position.copy(cp);m.userData.cut=true;CUT.pocheMeshes.push(m);scene.add(m);
+      addPocheEdge(g,m.rotation,cp,pocheEdgeColor);
+    }else{
+      if(pos<vy0||pos>vy1)continue;
+      const g=new THREE.PlaneGeometry(vx1-vx0,vz1-vz0),cp=new THREE.Vector3((vx0+vx1)/2,pos,(vz0+vz1)/2);
+      const m=new THREE.Mesh(g,pMat);m.rotation.x=-Math.PI/2;m.position.copy(cp);m.userData.cut=true;CUT.pocheMeshes.push(m);scene.add(m);
+      addPocheEdge(g,m.rotation,cp,pocheEdgeColor);
+    }
+  }
+}
+function addPocheEdge(geo,rot,pos,col){
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:col}));
+  e.rotation.copy(rot);e.position.copy(pos);e.userData.cut=true;CUT.pocheMeshes.push(e);scene.add(e);
+}
+function removeCutObjects(){
+  const rem=[];scene.traverse(o=>{if(o.userData.cut)rem.push(o);});
+  rem.forEach(o=>{scene.remove(o);if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});
+  CUT.ghostMesh=null;CUT.pocheMeshes=[];
+  scene.traverse(obj=>{if(obj.userData.v&&obj.material){const ms=Array.isArray(obj.material)?obj.material:[obj.material];ms.forEach(m=>{m.clippingPlanes=[];m.needsUpdate=true;});}});
+}
+function setCutAxis(axis){
+  CUT.axis=axis;CUT.active=!!axis;S.cutAxis=axis;
+  document.querySelectorAll('.sa').forEach(b=>b.className='sa');
+  if(!axis)document.getElementById('sa-off').classList.add('on-off');
+  else document.getElementById('sa-'+axis).classList.add('on-'+axis);
+  document.getElementById('cut-pos-row').style.display=axis?'flex':'none';
+  document.getElementById('st-cut-info').style.display=axis?'block':'none';
+  const handle=document.getElementById('cut-handle'),line=document.getElementById('cut-handle-line'),grip=document.getElementById('cut-handle-grip');
+  const handleZ=document.getElementById('cut-handle-z'),lineZ=document.getElementById('cut-handle-z-line'),gripZ=document.getElementById('cut-handle-z-grip');
+  if(axis){
+    const col=AXIS_COLOR[axis];
+    line.style.background=col;grip.style.borderColor=col;grip.style.color=col;
+    lineZ.style.background=col;gripZ.style.borderColor=col;gripZ.style.color=col;
+    document.getElementById('cut-axis-lbl').textContent=axis.toUpperCase();
+    document.getElementById('cut-axis-lbl').style.color=col;
+    if(axis==='z'){
+      handle.style.display='none';handle.classList.remove('visible');
+      document.getElementById('cut-hint').textContent='Section Z (Height) — drag handle or slider';
+    }else{
+      handleZ.style.display='none';handleZ.classList.remove('visible');
+      handle.style.display='block';handle.classList.add('visible');
+      document.getElementById('cut-hint').textContent=`Section ${axis.toUpperCase()} — drag handle or slider`;
+    }
+  }else{
+    handle.style.display='none';handle.classList.remove('visible');
+    handleZ.style.display='none';handleZ.classList.remove('visible');
+    document.getElementById('cut-hint').textContent='';
+  }
+  updateCutFromSlider();
+}
+function updateCutFromSlider(){
+  if(!CUT.active){removeCutObjects();return;}
+  const t=+document.getElementById('s-cut').value/100;
+  S.cutPos=t;const b=lastBounds;
+  let wp;
+  if(CUT.axis==='x')wp=b.minX+t*(b.maxX-b.minX);
+  else if(CUT.axis==='y')wp=b.minZ+t*(b.maxZ-b.minZ);
+  else wp=b.minY+t*(b.maxY-b.minY);
+  CUT.worldPos=wp;
+  const imp=fmtImperial(Math.abs(wp));
+  document.getElementById('v-cut').textContent=imp;
+  document.getElementById('st-cut-val').textContent=`${CUT.axis.toUpperCase()} ${imp}`;
+  applyCut();updateCutHandlePosition();
+}
+function initCutHandleDrag(){
+  const grip=document.getElementById('cut-handle-grip');
+  let dx0=0,t0=0;
+  grip.addEventListener('mousedown',e=>{CUT.isDragging=true;dx0=e.clientX;t0=S.cutPos;document.getElementById('canvas').classList.add('cut-drag');e.stopPropagation();e.preventDefault();});
+  window.addEventListener('mousemove',e=>{
+    if(!CUT.isDragging||CUT.axis==='z')return;
+    const canvas=document.getElementById('canvas'),cw=canvas.clientWidth,asp=cw/canvas.clientHeight;
+    const worldWidth=orb.frustum*2*asp,worldDelta=(e.clientX-dx0)/cw*worldWidth;
+    const b=lastBounds;
+    const range=CUT.axis==='x'?b.maxX-b.minX:b.maxZ-b.minZ;
+    if(range<0.01)return;
+    const sign=(CUT.axis==='y'&&Math.cos(orb.rotY)<0)?-1:1;
+    const newT=Math.max(0,Math.min(1,t0+worldDelta/range*sign));
+    document.getElementById('s-cut').value=Math.round(newT*100);S.cutPos=newT;
+    const wp=CUT.axis==='x'?b.minX+newT*(b.maxX-b.minX):b.minZ+newT*(b.maxZ-b.minZ);
+    CUT.worldPos=wp;
+    const imp=fmtImperial(Math.abs(wp));
+    document.getElementById('v-cut').textContent=imp;
+    document.getElementById('st-cut-val').textContent=`${CUT.axis.toUpperCase()} ${imp}`;
+    applyCut();updateCutHandlePosition();
+  });
+  window.addEventListener('mouseup',()=>{
+    if(CUT.axis!=='z'){ CUT.isDragging=false; }
+    document.getElementById('canvas').classList.remove('cut-drag');
+  });
+
+  // Z-axis (vertical / height) grip — drag up/down
+  const gripZ=document.getElementById('cut-handle-z-grip');
+  let dy0Z=0,t0Z=0;
+  gripZ.addEventListener('mousedown',e=>{CUT.isDragging=true;dy0Z=e.clientY;t0Z=S.cutPos;document.getElementById('canvas').classList.add('cut-drag-z');e.stopPropagation();e.preventDefault();});
+  window.addEventListener('mousemove',e=>{
+    if(!CUT.isDragging||CUT.axis!=='z')return;
+    const canvas=document.getElementById('canvas'),ch=canvas.clientHeight;
+    const worldHeight=orb.frustum*2,worldDelta=-(e.clientY-dy0Z)/ch*worldHeight;
+    const b=lastBounds;
+    const range=b.maxY-b.minY;
+    if(range<0.01)return;
+    const newT=Math.max(0,Math.min(1,t0Z+worldDelta/range));
+    document.getElementById('s-cut').value=Math.round(newT*100);S.cutPos=newT;
+    const wp=b.minY+newT*(b.maxY-b.minY);
+    CUT.worldPos=wp;
+    const imp=fmtImperial(Math.abs(wp));
+    document.getElementById('v-cut').textContent=imp;
+    document.getElementById('st-cut-val').textContent=`Z ${imp}`;
+    applyCut();updateCutHandlePosition();
+  });
+  window.addEventListener('mouseup',()=>{ CUT.isDragging=false; document.getElementById('canvas').classList.remove('cut-drag-z'); });
+}
+
+// ── D-pad ─────────────────────────────────────────────────────
+function dpadAction(dir){
+  if(activeView!=='3d')return;
+  const step=0.8,rot=0.08;
+  if(dir==='u')orb.panY+=step;else if(dir==='d')orb.panY-=step;
+  else if(dir==='l')orb.rotY+=rot;else if(dir==='r')orb.rotY-=rot;
+  else if(dir==='fit'){const{volumes}=generate();fitCamera(volumes,true);return;}
+  positionCamera();
+}
+
+// ── Debug overlay ─────────────────────────────────────────────
+let debugOn=false;
+function toggleDebug(){
+  debugOn=!debugOn;
+  const el=document.getElementById('debug-overlay');
+  el.classList.toggle('visible',debugOn);
+  if(debugOn) updateDebug();
+}
+function updateDebug(){
+  if(!debugOn)return;
+  const el=document.getElementById('debug-overlay');if(!el)return;
+  const la=camera?camera.position:new THREE.Vector3();
+  const lk=new THREE.Vector3(orb.panX,orb.targetY+orb.panY,0);
+  const d=`VIEW   ${activeView.padEnd(6)}  frustum ${orb.frustum.toFixed(2)}
+rotY   ${(orb.rotY*180/Math.PI).toFixed(1)}°  rotX ${(orb.rotX*180/Math.PI).toFixed(1)}°
+panX   ${orb.panX.toFixed(3)}  panY ${orb.panY.toFixed(3)}  panZ ${(orb.panZ||0).toFixed(3)}
+cam    (${la.x.toFixed(2)}, ${la.y.toFixed(2)}, ${la.z.toFixed(2)})
+lookAt (${lk.x.toFixed(2)}, ${lk.y.toFixed(2)}, ${lk.z.toFixed(2)})`;
+  el.textContent=d;
+}
+
+// ── Palette UI ────────────────────────────────────────────────
+function buildPaletteUI(){
+  const grid=document.getElementById('pal-grid');grid.innerHTML='';
+  for(const[key,pal]of Object.entries(PALETTES)){
+    const chip=document.createElement('div');
+    chip.className='pal-chip'+(key===S.pal?' on':'');chip.dataset.pal=key;
+    chip.innerHTML=`<div class="pal-name">${pal.name}</div><div class="pal-dots">${pal.fills.slice(0,5).map(c=>`<div class="pal-dot" style="background:#${c.toString(16).padStart(6,'0')}"></div>`).join('')}</div>`;
+    chip.addEventListener('click',()=>{S.pal=key;document.querySelectorAll('.pal-chip').forEach(c=>c.classList.toggle('on',c.dataset.pal===S.pal));buildScene(false);});
+    grid.appendChild(chip);
+  }
+}
+
+// ── Seed pills ────────────────────────────────────────────────
+const SEED_LABELS={p:'plan',h:'height',c:'colour',f:'facade'};
+function buildSeedPills(){
+  const row=document.getElementById('seeds-pills');row.innerHTML='';
+  for(const k of['p','h','c','f']){
+    const pill=document.createElement('div');
+    pill.className='seed-pill'+(S.locks[k]?' locked':'');pill.id=`seed-pill-${k}`;
+    pill.innerHTML=`<span class="sp-lbl">${SEED_LABELS[k]}:</span><span class="sp-val" id="sv-${k}">${S.seeds[k]}</span><button class="sp-lock" id="lb-${k}">🔒</button>`;
+    pill.querySelector('.sp-lock').addEventListener('click',e=>{S.locks[k]=!S.locks[k];pill.classList.toggle('locked',S.locks[k]);e.stopPropagation();});
+    row.appendChild(pill);
+  }
+}
+
+// ── Tooltip meta ──────────────────────────────────────────────
+function updateTooltipMeta(){
+  const sm=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  sm('tip-hn-meta',`BLUE[${S.htMin}] = ${BLUE_IMP[S.htMin]}`);
+  sm('tip-hx-meta',`BLUE[${S.htMax}] = ${BLUE_IMP[S.htMax]}`);
+  sm('tip-bw-meta',`BLUE[${S.bwIdx}] = ${BLUE_IMP[S.bwIdx]}`);
+  sm('tip-du-meta',`BLUE[${S.duIdx}] = ${BLUE_IMP[S.duIdx]}`);
+  sm('tip-fr-meta',`${RELIEF_LABELS[Math.min(S.facReliefIdx, RELIEF_LABELS.length-1)]}`);
+  sm('tip-fg-meta',`${['coarse','medium','medium-fine','fine'][Math.min(S.facGridIdx,3)]}`);
+}
+
+// ── Bind sliders ──────────────────────────────────────────────
+function bind(slId,valId,key,fmt,rv=true){
+  const sl=document.getElementById(slId),vl=document.getElementById(valId);
+  sl.addEventListener('input',(e)=>{S[key]=+sl.value;if(vl)vl.textContent=fmt?fmt(S[key]):S[key];updateTooltipMeta();buildScene(rv&&!(e.detail&&e.detail.noReset));});
+}
+
+// ── Randomise ─────────────────────────────────────────────────
+function randomiseParams(){
+  S.planCols=2+Math.floor(Math.random()*10);S.planRows=1+Math.floor(Math.random()*8);
+  S.planMerge=Math.floor(Math.random()*80);S.htMin=Math.floor(Math.random()*4);
+  S.htMax=Math.min(S.htMin+1+Math.floor(Math.random()*5),9);
+  S.voidP=Math.floor(Math.random()*40);S.bwIdx=Math.floor(Math.random()*5);S.duIdx=Math.floor(Math.random()*5);
+  S.facDensity=20+Math.floor(Math.random()*70);S.facReliefIdx=Math.floor(Math.random()*6);S.facGridIdx=Math.floor(Math.random()*4);S.facRhythm=Math.floor(Math.random()*60);
+  S.facSVMode=Math.random()<0.35; // 35% chance of SV mode in a full random
+  const pals=Object.keys(PALETTES);S.pal=pals[Math.floor(Math.random()*pals.length)];
+}
+function randomise(){
+  for(const k of['p','h','c','f']){
+    if(!S.locks[k]){S.seeds[k]=Math.floor(Math.random()*99999);document.getElementById('sv-'+k).textContent=S.seeds[k];}
+    document.getElementById(`seed-pill-${k}`).classList.toggle('locked',S.locks[k]);
+  }
+  compNum=p3(Math.floor(Math.random()*1000));
+  document.getElementById('cnum').textContent=`MASS·${compNum}`;
+}
+function syncSidebar(){
+  const map=[
+    ['s-px','v-px','planCols',null],['s-pz','v-pz','planRows',null],['s-pm','v-pm','planMerge',v=>v+'%'],
+    ['s-hn','v-hn','htMin',i=>BLUE_IMP[i]],['s-hx','v-hx','htMax',i=>BLUE_IMP[i]],
+    ['s-vd','v-vd','voidP',v=>v+'%'],['s-bw','v-bw','bwIdx',i=>BLUE_IMP[i]],['s-du','v-du','duIdx',i=>BLUE_IMP[i]],
+    ['s-fd','v-fd','facDensity',v=>v+'%'],['s-fr','v-fr','facReliefIdx',i=>RELIEF_LABELS[Math.min(i,RELIEF_LABELS.length-1)]],
+    ['s-fg','v-fg','facGridIdx',i=>['coarse','medium','med-fine','fine'][Math.min(i,3)]],
+    ['s-fy','v-fy','facRhythm',v=>v+'%'],
+  ];
+  map.forEach(([si,vi,key,fmt])=>{const sl=document.getElementById(si),vl=document.getElementById(vi);if(sl)sl.value=S[key];if(vl)vl.textContent=fmt?fmt(S[key]):S[key];});
+  document.querySelectorAll('.pal-chip').forEach(c=>c.classList.toggle('on',c.dataset.pal===S.pal));
+  for(const k of['p','h','c','f']){const sv=document.getElementById('sv-'+k);if(sv)sv.textContent=S.seeds[k];const pp=document.getElementById(`seed-pill-${k}`);if(pp)pp.classList.toggle('locked',S.locks[k]);}
+  document.getElementById('cnum').textContent=`MASS·${compNum}`;
+  // Sync SV toggle
+  const svOn=document.getElementById('sa-sv-on'),svOff=document.getElementById('sa-sv-off');
+  if(svOn&&svOff){svOn.classList.toggle('on-off',S.facSVMode);svOff.classList.toggle('on-off',!S.facSVMode);}
+  updateTooltipMeta();
+}
+
+// ── Apply defaults — snap everything back to clean start state ─
+function applyDefaults(){
+  // Copy scalar values
+  const skip=new Set(['seeds','locks']);
+  for(const k of Object.keys(DEFAULT_S)){
+    if(!skip.has(k)) S[k]=DEFAULT_S[k];
+  }
+  S.seeds={...DEFAULT_S.seeds};
+  S.locks={...DEFAULT_S.locks};
+  // Reset section cut
+  setCutAxis(null);
+  // Reset display toggles (UI sync handled below)
+  S.showShadows=DEFAULT_S.showShadows;
+  S.showGround=DEFAULT_S.showGround;
+  S.showGrid=DEFAULT_S.showGrid;
+  S.facSVMode=DEFAULT_S.facSVMode;
+  // Re-randomise seeds to keep it fresh but with default params
+  for(const k of['p','h','c','f']){
+    if(!S.locks[k]) S.seeds[k]=Math.floor(Math.random()*99999);
+  }
+  compNum=p3(Math.floor(Math.random()*1000));
+  // Sync all sidebar UI
+  syncSidebar();
+  buildPaletteUI();
+  // Sync display toggles
+  document.getElementById('sa-shd-on').classList.toggle('on-off', S.showShadows);
+  document.getElementById('sa-shd-off').classList.toggle('on-off', !S.showShadows);
+  document.getElementById('sa-gnd-on').classList.toggle('on-off', S.showGround);
+  document.getElementById('sa-gnd-off').classList.toggle('on-off', !S.showGround);
+  document.getElementById('sa-grd-on').classList.toggle('on-off', S.showGrid);
+  document.getElementById('sa-grd-off').classList.toggle('on-off', !S.showGrid);
+  document.getElementById('sa-sv-on').classList.toggle('on-off', S.facSVMode);
+  document.getElementById('sa-sv-off').classList.toggle('on-off', !S.facSVMode);
+  // Return to 3D view and rebuild
+  if(activeView!=='3d') setView('3d');
+  else buildScene(true);
+  requestAnimationFrame(()=>{ const s=document.getElementById('sbs'); if(s) s.scrollTop=0; });
+}
+
+
+// ── Swatch Savers ─────────────────────────────────────────────
+const SW_KEY='modulor_swatches';
+const SW_MAX=12;
+
+function swLoad(){
+  try{ return JSON.parse(localStorage.getItem(SW_KEY)||'[]'); }
+  catch(e){ return []; }
+}
+function swSave(arr){
+  try{ localStorage.setItem(SW_KEY,JSON.stringify(arr)); }
+  catch(e){ console.warn('Swatch save failed',e); }
+}
+
+function swCapture(){
+  // Snapshot S (deep-enough clone for our flat+seeds+locks structure)
+  const snap={
+    ...S,
+    seeds:{...S.seeds},
+    locks:{...S.locks},
+    _compNum:compNum,
+    _ts:Date.now(),
+  };
+  // Grab thumbnail from the main renderer canvas
+  let thumb='';
+  try{
+    renderer.render(scene,camera); // ensure frame is current
+    const cnv=renderer.domElement;
+    // Draw to a tiny offscreen canvas for a compact data URL
+    const oc=document.createElement('canvas');
+    oc.width=160;oc.height=100;
+    const ctx=oc.getContext('2d');
+    ctx.drawImage(cnv,0,0,160,100);
+    thumb=oc.toDataURL('image/jpeg',0.7);
+  } catch(e){ thumb=''; }
+  snap._thumb=thumb;
+  return snap;
+}
+
+function swRestore(snap){
+  // Restore scalar S keys
+  const skip=new Set(['seeds','locks','_compNum','_ts','_thumb']);
+  for(const k of Object.keys(snap)){
+    if(!skip.has(k)) S[k]=snap[k];
+  }
+  S.seeds={...snap.seeds};
+  S.locks={...snap.locks};
+  if(snap._compNum) compNum=snap._compNum;
+  // Reset section cut to avoid stale geometry
+  setCutAxis(null);
+  syncSidebar();
+  buildPaletteUI();
+  // Re-sync display toggles
+  document.getElementById('sa-shd-on').classList.toggle('on-off', S.showShadows);
+  document.getElementById('sa-shd-off').classList.toggle('on-off', !S.showShadows);
+  document.getElementById('sa-gnd-on').classList.toggle('on-off', S.showGround);
+  document.getElementById('sa-gnd-off').classList.toggle('on-off', !S.showGround);
+  document.getElementById('sa-grd-on').classList.toggle('on-off', S.showGrid);
+  document.getElementById('sa-grd-off').classList.toggle('on-off', !S.showGrid);
+  document.getElementById('sa-sv-on').classList.toggle('on-off', S.facSVMode);
+  document.getElementById('sa-sv-off').classList.toggle('on-off', !S.facSVMode);
+  if(activeView!=='3d') setView('3d');
+  else buildScene(true);
+}
+
+function swRenderGallery(){
+  const arr=swLoad();
+  const grid=document.getElementById('swatches-grid');
+  const empty=document.getElementById('sw-empty');
+  grid.innerHTML='';
+  if(!arr.length){
+    empty.style.display='';
+    return;
+  }
+  empty.style.display='none';
+  arr.forEach((snap,i)=>{
+    const card=document.createElement('div');
+    card.className='sw-card';
+    card.title=`MASS·${snap._compNum||'---'} · ${snap.pal||''}\nClick to restore`;
+
+    if(snap._thumb){
+      const img=document.createElement('img');
+      img.src=snap._thumb;
+      img.alt='Swatch';
+      card.appendChild(img);
+    } else {
+      // Fallback: colour bar from palette fills
+      const pal=PALETTES[snap.pal]||PALETTES.mondrian;
+      const bar=document.createElement('div');
+      bar.style.cssText='width:100%;height:100%;display:flex;';
+      pal.fills.forEach(hex=>{
+        const s=document.createElement('div');
+        s.style.cssText=`flex:1;background:#${hex.toString(16).padStart(6,'0')}`;
+        bar.appendChild(s);
+      });
+      card.appendChild(bar);
+    }
+
+    // Delete button
+    const del=document.createElement('div');
+    del.className='sw-del';
+    del.textContent='✕';
+    del.title='Delete';
+    del.addEventListener('click',e=>{
+      e.stopPropagation();
+      const arr2=swLoad();
+      arr2.splice(i,1);
+      swSave(arr2);
+      swRenderGallery();
+    });
+    card.appendChild(del);
+
+    card.addEventListener('click',()=>{
+      swRestore(snap);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function swAddCurrent(){
+  const arr=swLoad();
+  if(arr.length>=SW_MAX){
+    // Remove oldest
+    arr.shift();
+  }
+  const snap=swCapture();
+  arr.push(snap);
+  swSave(arr);
+  swRenderGallery();
+  // Brief visual feedback on button
+  const btn=document.getElementById('btn-sw-save');
+  if(btn){ btn.textContent='✓ Saved'; setTimeout(()=>{ btn.textContent='⊕ Save Swatch'; },900); }
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+    initThree();
+    buildPaletteUI();
+    buildSeedPills();
+
+    // Sliders
+    bind('s-px','v-px','planCols',null,false);bind('s-pz','v-pz','planRows',null,false);bind('s-pm','v-pm','planMerge',v=>v+'%',false);
+    bind('s-vd','v-vd','voidP',v=>v+'%',false);bind('s-bw','v-bw','bwIdx',i=>BLUE_IMP[i],false);bind('s-du','v-du','duIdx',i=>BLUE_IMP[i],false);
+    bind('s-fd','v-fd','facDensity',v=>v+'%',false);bind('s-fr','v-fr','facReliefIdx',i=>RELIEF_LABELS[Math.min(i,RELIEF_LABELS.length-1)],false);bind('s-fg','v-fg','facGridIdx',i=>['coarse','medium','med-fine','fine'][Math.min(i,3)],false);
+    bind('s-fy','v-fy','facRhythm',v=>v+'%',false);
+
+    // ── Manual value entry — click sl-v.editable to type a value ──────
+    // Parses ft/in (e.g. "10'6"", "10'-6"", "10.5"), %, or plain number.
+    // Snaps to nearest valid value for Blue-indexed and stepped sliders.
+    function parseFtIn(str){
+      // Accepts: "10'6"", "10'-6"", "10' 6"", "10.5", "3.2m", plain feet
+      str=str.trim().replace(/["""]/g,'"').replace(/['']/g,"'");
+      const m=str.match(/^(\d+(?:\.\d+)?)'[\s-]*(\d+(?:\.\d+)?)(?:[\s-]*(\d+)\/(\d+))?[""]?$/);
+      if(m){ return +m[1]+((+m[2]+(m[3]?+m[3]/+m[4]:0))/12); }
+      const m2=str.match(/^(\d+(?:\.\d+)?)'[""]?$/);
+      if(m2) return +m2[1];
+      const m3=str.match(/^(\d+(?:\.\d+)?)[""]$/);
+      if(m3) return +m3[1]/12;
+      if(str.endsWith('m')) return parseFloat(str)*3.28084;
+      return parseFloat(str)||null;
+    }
+    function nearestBlue(ft, min, max){
+      // ft in feet — find nearest BLUE index in [min,max]
+      const m=ft/M2FT; // convert to meters for BLUE comparison
+      let best=min, bestD=Infinity;
+      for(let i=min;i<=max;i++){
+        const d=Math.abs(BLUE[i]-m);
+        if(d<bestD){bestD=d;best=i;}
+      }
+      return best;
+    }
+    function nearestRelief(inchStr){
+      // parse inch value e.g. "6" or "6in" → find nearest RELIEF_DEPTHS index
+      const inches=parseFloat(inchStr)||0;
+      const m=inches*0.0254;
+      let best=0, bestD=Infinity;
+      RELIEF_DEPTHS.forEach((rd,i)=>{ const d=Math.abs(rd-m); if(d<bestD){bestD=d;best=i;} });
+      return best;
+    }
+    const GRIDSCALE_LABELS=['fine','med-fine','medium','coarse'];
+    function nearestGridScale(str){
+      str=str.toLowerCase().trim();
+      const idx=GRIDSCALE_LABELS.findIndex(l=>l.startsWith(str));
+      return idx>=0?idx:null;
+    }
+
+    function commitEditableValue(span, rawStr){
+      const key=span.dataset.key;
+      const type=span.dataset.type;
+      const min=+span.dataset.min, max=+span.dataset.max;
+      const sl=document.getElementById(span.dataset.sl);
+      let newVal=null;
+
+      if(type==='int'){
+        newVal=Math.round(Math.max(min,Math.min(max,parseFloat(rawStr)||min)));
+      } else if(type==='pct'){
+        const n=parseFloat(rawStr.replace('%',''));
+        if(!isNaN(n)) newVal=Math.round(Math.max(min,Math.min(max,n)));
+      } else if(type==='blue'){
+        const ft=parseFtIn(rawStr);
+        if(ft!==null) newVal=nearestBlue(ft, min, max);
+      } else if(type==='relief'){
+        newVal=nearestRelief(rawStr);
+      } else if(type==='gridscale'){
+        const g=nearestGridScale(rawStr);
+        if(g!==null) newVal=g;
+      }
+
+      if(newVal===null) return; // invalid input — ignore
+      S[key]=newVal;
+      if(sl){ sl.value=newVal; sl.dispatchEvent(new CustomEvent('input',{detail:{noReset:true}})); }
+    }
+
+    document.querySelectorAll('.sl-v.editable').forEach(span=>{
+      span.addEventListener('click',e=>{
+        if(span.querySelector('input')) return; // already open
+        const cur=span.textContent.trim();
+        const inp=document.createElement('input');
+        inp.type='text'; inp.className='sl-v-input';
+        inp.value=cur==='—'?'':cur;
+        span.textContent='';
+        span.appendChild(inp);
+        inp.focus(); inp.select();
+        function commit(){
+          const raw=inp.value.trim();
+          span.removeChild(inp);
+          if(raw) commitEditableValue(span, raw);
+          // Display update happens via sl dispatchEvent → bind handler
+        }
+        inp.addEventListener('keydown',e=>{
+          if(e.key==='Enter'){ e.preventDefault(); commit(); }
+          if(e.key==='Escape'){ span.removeChild(inp); updateSidebarValue(span); }
+          e.stopPropagation();
+        });
+        inp.addEventListener('blur',commit);
+        e.stopPropagation();
+      });
+    });
+
+    function updateSidebarValue(span){
+      const key=span.dataset.key, type=span.dataset.type;
+      const val=S[key];
+      if(type==='int') span.textContent=val;
+      else if(type==='pct') span.textContent=val+'%';
+      else if(type==='blue') span.textContent=BLUE_IMP[val]||val;
+      else if(type==='relief') span.textContent=RELIEF_LABELS[Math.min(val,RELIEF_LABELS.length-1)];
+      else if(type==='gridscale') span.textContent=GRIDSCALE_LABELS[Math.min(val,3)];
+    }
+
+    // Guarded height sliders
+    (()=>{
+      const sn=document.getElementById('s-hn'),vn=document.getElementById('v-hn');
+      const sx=document.getElementById('s-hx'),vx=document.getElementById('v-hx');
+      sn.addEventListener('input',(e)=>{
+        S.htMin=+sn.value;
+        if(S.htMin>=S.htMax){S.htMax=Math.min(S.htMin+1,9);sx.value=S.htMax;vx.textContent=BLUE_IMP[S.htMax];}
+        vn.textContent=BLUE_IMP[S.htMin];updateTooltipMeta();buildScene(!(e.detail&&e.detail.noReset));
+      });
+      sx.addEventListener('input',(e)=>{
+        S.htMax=+sx.value;
+        if(S.htMax<=S.htMin){S.htMin=Math.max(S.htMax-1,0);sn.value=S.htMin;vn.textContent=BLUE_IMP[S.htMin];}
+        vx.textContent=BLUE_IMP[S.htMax];updateTooltipMeta();buildScene(!(e.detail&&e.detail.noReset));
+      });
+    })();
+
+    // Section cut
+    document.getElementById('sa-off').addEventListener('click',()=>setCutAxis(null));
+    ['x','y','z'].forEach(ax=>{
+      document.getElementById('sa-'+ax).addEventListener('click',()=>{
+        setCutAxis(CUT.axis===ax?null:ax);
+        if(CUT.active)updateCutFromSlider();
+      });
+    });
+    document.getElementById('s-cut').addEventListener('input',()=>updateCutFromSlider());
+    initCutHandleDrag();
+
+    // View pills
+    document.querySelectorAll('.vp').forEach(pill=>{
+      pill.addEventListener('click',()=>setView(pill.dataset.view));
+    });
+
+    // D-pad
+    ['u','d','l','r'].forEach(dir=>{
+      let ht=null,hi=null;const el=document.getElementById('dp-'+dir);
+      el.addEventListener('mousedown',e=>{dpadAction(dir);ht=setTimeout(()=>{hi=setInterval(()=>dpadAction(dir),80);},350);e.preventDefault();});
+      window.addEventListener('mouseup',()=>{clearTimeout(ht);clearInterval(hi);});
+    });
+    document.getElementById('dp-fit').addEventListener('click',()=>dpadAction('fit'));
+
+    // Keyboard
+    window.addEventListener('keydown',e=>{
+      if(e.target.tagName==='INPUT')return;
+      const map={'ArrowUp':'u','ArrowDown':'d','ArrowLeft':'l','ArrowRight':'r'};
+      if(map[e.key]){dpadAction(map[e.key]);e.preventDefault();}
+      if(e.key==='f'||e.key==='F')dpadAction('fit');
+      if(e.key==='x'||e.key==='X'){setCutAxis(CUT.axis==='x'?null:'x');if(CUT.active)updateCutFromSlider();}
+      if(e.key==='y'||e.key==='Y'){setCutAxis(CUT.axis==='y'?null:'y');if(CUT.active)updateCutFromSlider();}
+      if(e.key==='z'||e.key==='Z'){setCutAxis(CUT.axis==='z'?null:'z');if(CUT.active)updateCutFromSlider();}
+      if(e.key==='Escape'){setCutAxis(null);}
+      // View shortcuts
+      if(e.key==='1')setView('3d');
+      if(e.key==='2')setView('plan');
+      if(e.key==='3')setView('south');
+      if(e.key==='4')setView('north');
+      if(e.key==='5')setView('east');
+      if(e.key==='6')setView('west');
+      // Debug overlay
+      if(e.key==='`'){toggleDebug();}
+    });
+
+    // Shadow toggle
+    function setShadows(on){
+      S.showShadows=on;
+      document.getElementById('sa-shd-on').classList.toggle('on-off', on);
+      document.getElementById('sa-shd-off').classList.toggle('on-off', !on);
+      if(activeView==='plan') clearPlanShadows();
+      buildScene(false);
+    }
+    document.getElementById('sa-shd-on').addEventListener('click',()=>setShadows(true));
+    document.getElementById('sa-shd-off').addEventListener('click',()=>setShadows(false));
+
+    // Ground plane toggle
+    function setGround(on){
+      S.showGround=on;
+      document.getElementById('sa-gnd-on').classList.toggle('on-off', on);
+      document.getElementById('sa-gnd-off').classList.toggle('on-off', !on);
+      buildScene(false);
+    }
+    document.getElementById('sa-gnd-on').addEventListener('click',()=>setGround(true));
+    document.getElementById('sa-gnd-off').addEventListener('click',()=>setGround(false));
+
+    function setGrid(on){
+      S.showGrid=on;
+      document.getElementById('sa-grd-on').classList.toggle('on-off', on);
+      document.getElementById('sa-grd-off').classList.toggle('on-off', !on);
+      if(!on && gridGroup){ gridGroup.visible=false; }
+      else buildScene(false);
+    }
+    document.getElementById('sa-grd-on').addEventListener('click',()=>setGrid(true));
+    document.getElementById('sa-grd-off').addEventListener('click',()=>setGrid(false));
+
+    function setSVMode(on){
+      S.facSVMode=on;
+      document.getElementById('sa-sv-on').classList.toggle('on-off', on);
+      document.getElementById('sa-sv-off').classList.toggle('on-off', !on);
+      buildScene(false);
+    }
+    document.getElementById('sa-sv-on').addEventListener('click',()=>setSVMode(true));
+    document.getElementById('sa-sv-off').addEventListener('click',()=>setSVMode(false));
+
+    // Randomizer
+    document.getElementById('btn-rnd-full').addEventListener('click',()=>{randomiseParams();randomise();syncSidebar();buildPaletteUI();buildScene();});
+    document.getElementById('btn-reset').addEventListener('click',()=>applyDefaults());
+    document.getElementById('btn-rnd-plan').addEventListener('click',()=>{if(!S.locks.p)S.seeds.p=Math.floor(Math.random()*99999);randomise();syncSidebar();buildScene();});
+    document.getElementById('btn-rnd-ht').addEventListener('click',()=>{if(!S.locks.h)S.seeds.h=Math.floor(Math.random()*99999);randomise();syncSidebar();buildScene();});
+    document.getElementById('btn-rnd-col').addEventListener('click',()=>{if(!S.locks.c)S.seeds.c=Math.floor(Math.random()*99999);randomise();syncSidebar();buildScene();});
+    document.getElementById('btn-rnd-fac').addEventListener('click',()=>{if(!S.locks.f)S.seeds.f=Math.floor(Math.random()*99999);randomise();syncSidebar();buildScene();});
+    document.getElementById('btn-rnd-all3').addEventListener('click',()=>{randomise();syncSidebar();buildScene();});
+    document.getElementById('btn-rnd-params').addEventListener('click',()=>{randomiseParams();randomise();syncSidebar();buildPaletteUI();buildScene();});
+
+    document.getElementById('btn-json').addEventListener('click',()=>document.getElementById('gate').classList.add('open'));
+
+    // Fullscreen button
+    const btnFs=document.getElementById('btn-fullscreen');
+    btnFs.addEventListener('click',()=>{
+      if(!document.fullscreenElement){
+        document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen&&document.exitFullscreen();
+      }
+    });
+    document.addEventListener('fullscreenchange',()=>{
+      const isFs=!!document.fullscreenElement;
+      btnFs.textContent=isFs?'⤡ Exit Full':'⤢ Full';
+    });
+
+    // Swatch Savers
+    document.getElementById('btn-sw-save').addEventListener('click',()=>swAddCurrent());
+    swRenderGallery();
+    document.getElementById('gate').addEventListener('click',e=>{if(e.target===document.getElementById('gate'))document.getElementById('gate').classList.remove('open');});
+
+    // Start with clean defaults. Build scene first (populates lastVolumes/lastBounds),
+    // then fit camera on the next two frames once the browser has painted layout,
+    // then start the animate loop. User sees a correctly-framed model from frame 1.
+    syncSidebar(); buildPaletteUI(); buildScene(false); // false = don't fit yet
+    // Ensure sidebar is scrolled to top so Colour Palette is the first thing seen
+    requestAnimationFrame(()=>{ const s=document.getElementById('sbs'); if(s) s.scrollTop=0; });
+    // Fit immediately on next frame (canvas dimensions settled after first paint)
+    requestAnimationFrame(()=>{
+      const c=document.getElementById('canvas');
+      renderer.setSize(c.clientWidth||800, c.clientHeight||600);
+      if(lastVolumes.length) fitCamera(lastVolumes,true);
+      animate(); // start loop only after correct camera is set
+      // Second fit one frame later catches any reflow from font/panel load
+      requestAnimationFrame(()=>{
+        if(activeView!=='3d') return;
+        const c2=document.getElementById('canvas');
+        if(c2.clientWidth && lastVolumes.length) fitCamera(lastVolumes,true);
+      });
+    });
+  });});
+});
+
+// Final guaranteed fit after ALL resources (fonts, CSS) have loaded.
+// window.load fires well after DOMContentLoaded so canvas is fully painted.
+window.addEventListener('load',()=>{
+  if(!lastVolumes||!lastVolumes.length) return;
+  const c=document.getElementById('canvas');
+  if(!c) return;
+  renderer.setSize(c.clientWidth||800, c.clientHeight||600);
+  if(activeView==='3d') fitCamera(lastVolumes,true);
+  else if(lastBounds){
+    orb.frustum=fitFrustumForView(activeView,lastBounds);
+    if(activeView!=='plan'){ orb.targetY=0; orb.panY=elevPanY(orb.frustum); }
+    positionCamera(); updateCameraFrustum();
+  }
+  const sbs=document.getElementById('sbs'); if(sbs) sbs.scrollTop=0;
+});
+</script>
+</body>
+</html>
