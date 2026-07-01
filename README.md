@@ -42,16 +42,16 @@ Compositions are seed-based (`grid`, `merge`, `color`, `z` seeds) — every resu
 
 ```
 modular.massing/
-├── index.html          Single-file app — HTML, CSS, JS, Three.js scene, all in one
-├── audit_deploy.js      148-check pre-deploy validation script
-└── HANDOFF_vXX.md       Per-version changelog and handoff notes
+├── index.html      Single-file app — HTML, CSS, JS, Three.js scene, all in one
+├── netlify.toml    Build/publish config
+└── README.md       This file
 ```
 
 There is no build step. `index.html` is deployed as-is.
 
-## Handoff protocol
+## Development workflow
 
-Every version produces three files together: `index.html`, `audit_deploy.js`, `HANDOFF_vXX.md`. A new working session starts by uploading all three and running the audit script before making any changes, to confirm the starting state is clean.
+Active development happens in versioned sessions, each producing `index.html` plus two working files that support the process but aren't part of this repo: `audit_deploy.js` (a 148-check pre-deploy validation script) and a per-version `HANDOFF_vXX.md` changelog. A new session starts by re-running the audit against the current `index.html` to confirm the starting state is clean before making changes.
 
 ## Critical invariants — do not modify
 
