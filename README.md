@@ -15,4 +15,4 @@ More detail on presets, invariants, and project structure: see
 
 ---
 
-*Joe K. · [axisbim.io](https://axisbim.io)*
+*Joe.K · [axisbim.io](https://axisbim.io)*
