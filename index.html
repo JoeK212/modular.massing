@@ -1,18 +1,11 @@
 <!DOCTYPE html>
-<!--
-  MODULOR MASSING — Parametric Architectural Massing Tool
-  Generates massing studies from a proportional module derived from Le
-  Corbusier's Modulor Blue Series, with synced 3D / Plan / Elevation
-  views, four color palettes, and Simple/Advanced control modes.
-  Joe.K · axisbim.io
--->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Modulor Massing — Parametric Architectural Massing Tool</title>
 <meta name="description" content="A browser-based parametric massing tool for exploring architectural composition — preset typologies, punched window facades, and seeded randomization built with Three.js.">
-<meta name="author" content="Joe.K · axisbim.io">
+<meta name="author" content="Joe K.">
 
 <meta property="og:title" content="Modulor Massing — Parametric Architectural Massing Tool">
 <meta property="og:description" content="Browser-based tool for exploring massing and facade composition through preset typologies, live plan/elevation/section views, and controlled randomization.">
@@ -425,9 +418,44 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
   line-height:1.8;letter-spacing:.04em;white-space:pre;
 }
 #debug-overlay.visible{display:block;}
+
+/* ── Mobile warning overlay ── */
+#mob-warn{display:none}
+@media (max-width:900px){
+  #hdr,#app{display:none}
+  #mob-warn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:100vh;width:100vw;background:var(--bg);color:var(--text);
+    padding:32px;text-align:center;font-family:'Inter',sans-serif;
+  }
+}
+.mw-icon{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 0.6fr 1fr;gap:3px;width:96px;height:96px;padding:6px;border:1px solid var(--border2);background:var(--panel);margin-bottom:28px}
+.mw-icon div{background:var(--dim2)}
+.mw-icon .a{background:var(--gold);grid-row:1 / span 2}
+.mw-icon .b{background:var(--gdim)}
+.mw-icon .c{background:var(--dim2)}
+.mw-icon .d{background:var(--dim);grid-row:3}
+.mw-icon .e{background:var(--panel);border:1px solid var(--border2);grid-row:3}
+.mw-rule{width:40px;height:1px;background:var(--border2);margin:22px 0}
+.mw-title{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text)}
+.mw-body{max-width:320px;color:var(--dim);font-size:14px;line-height:1.7;font-weight:300}
+.mw-credit{font-family:'Space Mono',monospace;font-size:11px;color:var(--dim2);letter-spacing:.06em}
+.mw-credit a{color:var(--dim2);text-decoration:none}
 </style>
 </head>
 <body>
+<div id="mob-warn">
+  <div class="mw-icon">
+    <div class="a"></div><div class="b"></div>
+    <div class="c"></div>
+    <div class="d"></div><div class="e"></div>
+  </div>
+  <div class="mw-title">Modulor Massing</div>
+  <div class="mw-rule"></div>
+  <div class="mw-body">This tool requires a tablet or desktop display for the sidebar, 3D viewport, and plan/elevation layout. Please open it on a larger screen.</div>
+  <div class="mw-rule"></div>
+  <div class="mw-credit">Joe.K &nbsp;·&nbsp; <a href="https://axisbim.io" target="_blank">axisbim.io</a></div>
+</div>
 <div id="hdr">
   <div style="display:flex;flex-direction:column;justify-content:center">
     <div class="logo">Modulor <em>·</em> Massing</div>
